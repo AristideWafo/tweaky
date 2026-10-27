@@ -27,6 +27,7 @@ struct TweakyPanel: View {
         .frame(width: 560)
         .fixedSize(horizontal: false, vertical: true)
         .background(VisualEffectBackground().clipShape(shape))
+        .background(OverlayScrollers(trigger: state.inputText.count + state.resultText.count))
         .tint(brandBlue)
         .onAppear { isInputFocused = true }
         .onExitCommand { dismiss() }
@@ -73,7 +74,7 @@ struct TweakyPanel: View {
         }
         .frame(minHeight: 60, maxHeight: 260)
         .padding(10)
-        .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .background(.quaternary.opacity(0.35), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 
     private var actionBar: some View {
@@ -141,7 +142,7 @@ struct TweakyPanel: View {
             .frame(maxHeight: 200)
             .fixedSize(horizontal: false, vertical: true)
             .padding(12)
-            .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .background(.quaternary.opacity(0.35), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
             HStack(spacing: 8) {
                 Button("Copy", systemImage: "doc.on.doc") { state.copyResult() }
                     .buttonStyle(.bordered)
@@ -180,11 +181,35 @@ private struct AnyLabelStyle: LabelStyle {
 private struct VisualEffectBackground: NSViewRepresentable {
     func makeNSView(context: Context) -> NSVisualEffectView {
         let view = NSVisualEffectView()
-        view.material = .popover
+        view.material = .underWindowBackground
         view.blendingMode = .behindWindow
         view.state = .active
         return view
     }
 
     func updateNSView(_ nsView: NSVisualEffectView, context: Context) {}
+}
+
+/// Forces the thin, auto-hiding overlay scrollers (no white track) on every scroll view in the panel,
+/// even when System Settings is set to always show scroll bars.
+/// shortcut: re-applied on text changes rather than tracking scroll view creation; fine for this small view tree.
+private struct OverlayScrollers: NSViewRepresentable {
+    let trigger: Int
+
+    func makeNSView(context: Context) -> NSView { NSView() }
+
+    func updateNSView(_ nsView: NSView, context: Context) {
+        DispatchQueue.main.async {
+            guard let root = nsView.window?.contentView else { return }
+            apply(in: root)
+        }
+    }
+
+    private func apply(in view: NSView) {
+        if let scrollView = view as? NSScrollView {
+            scrollView.scrollerStyle = .overlay
+            scrollView.drawsBackground = false
+        }
+        view.subviews.forEach(apply)
+    }
 }
