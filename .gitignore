@@ -1,0 +1,12 @@
+.build/
+.swiftpm/
+DerivedData/
+dist/
+xcuserdata/
+*.xcuserstate
+.DS_Store
+
+# Never commit API keys or local overrides.
+.env
+.env.*
+Config/Local.xcconfig
