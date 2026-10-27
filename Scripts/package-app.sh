@@ -21,6 +21,9 @@ install -m 755 "$binary_root/Tweaky" "$contents_root/MacOS/Tweaky"
 install -m 644 "$repository_root/Resources/Info.plist" "$contents_root/Info.plist"
 install -m 644 "$repository_root/Resources/AppIcon.png" "$contents_root/Resources/AppIcon.png"
 
+# File-provider workspaces can attach Finder metadata that invalidates a code signature.
+xattr -cr "$app_root"
+
 if [[ -n "${TWEAKY_SIGNING_IDENTITY:-}" ]]; then
     codesign --force --deep --options runtime --timestamp --sign "$TWEAKY_SIGNING_IDENTITY" "$app_root"
 elif [[ "${TWEAKY_ADHOC_SIGN:-1}" == "1" ]]; then
