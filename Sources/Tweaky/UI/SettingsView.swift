@@ -29,11 +29,23 @@ private struct SettingsForm: View {
                     status = ""
                     refreshStoredKeyStatus()
                 }
-                TextField("Model", text: $store.settings.model)
-                if store.settings.provider == .openAICompatible {
-                    TextField("Base URL", text: $store.settings.baseURL)
+                LabeledContent("Model") {
+                    HStack {
+                        TextField("Model identifier", text: $store.settings.model)
+                        Button("Use Default") {
+                            store.settings.model = store.settings.provider.defaultModel
+                            status = "Default model restored."
+                        }
+                    }
                 }
-                SecureField(hasStoredAPIKey ? "API key stored in Keychain" : "API key", text: $apiKey)
+                if store.settings.provider == .openAICompatible {
+                    LabeledContent("Base URL") {
+                        TextField("https://…", text: $store.settings.baseURL)
+                    }
+                }
+                LabeledContent("API key") {
+                    SecureField(hasStoredAPIKey ? "Stored in Keychain" : "Paste provider key", text: $apiKey)
+                }
                 if hasStoredAPIKey {
                     Label("API key saved for \(store.settings.provider.displayName)", systemImage: "checkmark.circle.fill")
                         .font(.callout)
