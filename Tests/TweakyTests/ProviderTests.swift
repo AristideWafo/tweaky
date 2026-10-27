@@ -49,6 +49,25 @@ struct ProviderTests {
         #expect(try await provider.process(text: "Text", action: .correct, targetLanguage: nil) == "Corrected by Gemini")
     }
 
+    @Test("Gemini retries a transient service error")
+    func geminiRetriesTransientFailure() async throws {
+        let attempts = AttemptCounter()
+        let session = makeSession { request in
+            let attempt = attempts.increment()
+            if attempt == 1 {
+                return (HTTPURLResponse(url: request.url!, statusCode: 503, httpVersion: nil, headerFields: nil)!, Data())
+            }
+            let body = #"{"candidates":[{"content":{"parts":[{"text":"Recovered"}]}}]}"#.data(using: .utf8)!
+            return (HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!, body)
+        }
+        let provider = GeminiProvider(
+            apiKey: "secret", model: "test-model",
+            baseURL: URL(string: "https://generativelanguage.googleapis.com/v1beta")!, session: session
+        )
+        #expect(try await provider.process(text: "Text", action: .correct, targetLanguage: nil) == "Recovered")
+        #expect(attempts.current == 2)
+    }
+
     @Test("Provider factory rejects insecure remote URLs")
     func rejectsInsecureRemoteURL() {
         var settings = AppSettings()
@@ -65,6 +84,24 @@ struct ProviderTests {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [MockURLProtocol.self]
         return URLSession(configuration: configuration)
+    }
+}
+
+private final class AttemptCounter: @unchecked Sendable {
+    private let lock = NSLock()
+    private var value = 0
+
+    func increment() -> Int {
+        lock.lock()
+        defer { lock.unlock() }
+        value += 1
+        return value
+    }
+
+    var current: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return value
     }
 }
 

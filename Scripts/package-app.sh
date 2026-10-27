@@ -30,4 +30,7 @@ elif [[ "${TWEAKY_ADHOC_SIGN:-1}" == "1" ]]; then
     codesign --force --deep --sign - "$app_root"
 fi
 
+# A synchronized workspace may reattach FinderInfo while signing; remove it again.
+xattr -cr "$app_root"
+
 echo "$app_root"

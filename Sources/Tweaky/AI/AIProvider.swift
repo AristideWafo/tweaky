@@ -10,6 +10,7 @@ enum AIProviderError: LocalizedError {
     case invalidResponse
     case authenticationFailed
     case rateLimited
+    case serviceUnavailable
     case serverError(Int)
     case transport(String)
 
@@ -20,6 +21,7 @@ enum AIProviderError: LocalizedError {
         case .invalidResponse: "The provider returned an unreadable response."
         case .authenticationFailed: "The API key was rejected. Check it in Settings."
         case .rateLimited: "The provider rate limit was reached. Try again shortly."
+        case .serviceUnavailable: "Google Gemini is temporarily unavailable after three attempts. Try again in a moment."
         case .serverError(let code): "The provider returned an error (HTTP \(code))."
         case .transport(let message): "Network request failed: \(message)"
         }
@@ -58,6 +60,7 @@ enum HTTPValidation {
         case 200..<300: return
         case 401, 403: throw AIProviderError.authenticationFailed
         case 429: throw AIProviderError.rateLimited
+        case 502, 503, 504: throw AIProviderError.serviceUnavailable
         default: throw AIProviderError.serverError(http.statusCode)
         }
     }
