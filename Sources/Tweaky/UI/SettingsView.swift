@@ -62,9 +62,9 @@ private struct SettingsForm: View {
                     }
                 }
                 if hasStoredAPIKey {
-                    Label("API key saved securely", systemImage: "checkmark.circle.fill")
+                    Label("Saved in Keychain", systemImage: "lock.fill")
                         .font(.callout)
-                        .foregroundStyle(.green)
+                        .foregroundStyle(.secondary)
                 }
                 HStack {
                     Button("Save") { saveKey() }
@@ -77,12 +77,10 @@ private struct SettingsForm: View {
                     if isTesting { ProgressView().controlSize(.small) }
                 }
                 if !status.isEmpty {
-                    HStack(spacing: 6) {
-                        Circle().fill(statusIsError ? .red : .green).frame(width: 8, height: 8)
-                        Text(status)
-                    }
-                    .font(.callout)
-                    .foregroundStyle(statusIsError ? .red : .green)
+                    Label(status, systemImage: statusIsError ? "exclamationmark.triangle.fill" : "checkmark.circle.fill")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                        .symbolRenderingMode(.multicolor)
                 }
             }
             Section("Writing") {

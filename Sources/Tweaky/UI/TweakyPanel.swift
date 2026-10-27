@@ -1,12 +1,8 @@
 import AppKit
 import SwiftUI
 
-/// Colors sampled from Resources/AppIcon.png.
-enum Brand {
-    static let blue = Color(red: 0.28, green: 0.42, blue: 0.96)
-    static let violet = Color(red: 0.55, green: 0.36, blue: 0.96)
-    static let gradient = LinearGradient(colors: [blue, violet], startPoint: .topLeading, endPoint: .bottomTrailing)
-}
+/// Accent sampled from Resources/AppIcon.png; used sparingly, only for the primary action.
+private let brandBlue = Color(red: 0.28, green: 0.42, blue: 0.96)
 
 struct TweakyPanel: View {
     @ObservedObject var state: AppState
@@ -21,21 +17,17 @@ struct TweakyPanel: View {
             header
             editor
             actionBar
-            if !state.resultText.isEmpty { result }
+            if !state.resultText.isEmpty {
+                result.transition(.opacity.combined(with: .move(edge: .top)))
+            }
             footer
         }
+        .animation(.easeOut(duration: 0.2), value: state.resultText.isEmpty)
         .padding(16)
         .frame(width: 560)
         .fixedSize(horizontal: false, vertical: true)
-        .background {
-            ZStack {
-                VisualEffectBackground()
-                Brand.gradient.opacity(0.10)
-            }
-            .clipShape(shape)
-        }
-        .overlay(shape.strokeBorder(.white.opacity(0.25)))
-        .tint(Brand.blue)
+        .background(VisualEffectBackground().clipShape(shape))
+        .tint(brandBlue)
         .onAppear { isInputFocused = true }
         .onExitCommand { dismiss() }
     }
@@ -81,8 +73,7 @@ struct TweakyPanel: View {
         }
         .frame(minHeight: 60, maxHeight: 260)
         .padding(10)
-        .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(.white.opacity(0.15)))
+        .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 
     private var actionBar: some View {
@@ -150,7 +141,7 @@ struct TweakyPanel: View {
             .frame(maxHeight: 200)
             .fixedSize(horizontal: false, vertical: true)
             .padding(12)
-            .background(Brand.gradient.opacity(0.12), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
             HStack(spacing: 8) {
                 Button("Copy", systemImage: "doc.on.doc") { state.copyResult() }
                     .buttonStyle(.bordered)
