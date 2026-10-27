@@ -1,15 +1,15 @@
 import SwiftUI
 
 @main
-struct QuickTextApp: App {
+struct TweakyApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     var body: some Scene {
-        MenuBarExtra("QuickText", systemImage: "text.badge.sparkles") {
-            Button("Open QuickText") { appDelegate.openPanel() }
+        MenuBarExtra("Tweaky", systemImage: "text.badge.sparkles") {
+            Button("Open Tweaky") { appDelegate.openPanel() }
             Divider()
             SettingsLink()
             Divider()
-            Button("Quit QuickText") { NSApplication.shared.terminate(nil) }
+            Button("Quit Tweaky") { NSApplication.shared.terminate(nil) }
         }
         .menuBarExtraStyle(.menu)
 

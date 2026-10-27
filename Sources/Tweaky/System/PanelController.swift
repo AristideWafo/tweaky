@@ -19,7 +19,7 @@ final class PanelController {
         panel.isMovableByWindowBackground = true
         panel.backgroundColor = .clear
         panel.isOpaque = false
-        panel.contentView = NSHostingView(rootView: QuickPanel(state: state) { [weak panel] in
+        panel.contentView = NSHostingView(rootView: TweakyPanel(state: state) { [weak panel] in
             panel?.orderOut(nil)
         })
     }

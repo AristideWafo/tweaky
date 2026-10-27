@@ -1,5 +1,5 @@
 import Testing
-@testable import QuickText
+@testable import Tweaky
 
 @Suite("Prompt builder")
 struct PromptBuilderTests {

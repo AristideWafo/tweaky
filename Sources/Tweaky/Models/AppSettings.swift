@@ -69,10 +69,10 @@ final class SettingsStore: ObservableObject {
     private func save() {
         guard let data = try? JSONEncoder().encode(settings) else { return }
         defaults.set(data, forKey: key)
-        NotificationCenter.default.post(name: .quickTextSettingsChanged, object: nil)
+        NotificationCenter.default.post(name: .tweakySettingsChanged, object: nil)
     }
 }
 
 extension Notification.Name {
-    static let quickTextSettingsChanged = Notification.Name("QuickTextSettingsChanged")
+    static let tweakySettingsChanged = Notification.Name("TweakySettingsChanged")
 }

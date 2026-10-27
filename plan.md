@@ -1,4 +1,4 @@
-# QuickText delivery plan
+# Tweaky delivery plan
 
 ## Product goal
 

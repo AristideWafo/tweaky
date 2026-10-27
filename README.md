@@ -1,12 +1,12 @@
-# QuickText
+# Tweaky
 
-QuickText is a lightweight, native macOS writing assistant. A global shortcut opens a Spotlight-like panel to correct or translate selected text.
+Tweaky is a lightweight, native macOS writing assistant. A global shortcut opens a Spotlight-like panel to correct or translate selected text.
 
 ## Status
 
 The MVP is implemented: menu-bar app, global shortcut, Spotlight-style panel, Accessibility selection capture, clipboard input, explicit local OCR, OpenAI/Anthropic/OpenAI-compatible providers, copy and direct-replacement output, Keychain storage, tests, packaging, CI, and tag-based GitHub releases.
 
-The interface follows the system light/dark appearance and uses native macOS materials. The project includes a dedicated QuickText application icon designed for the same glass-inspired visual language.
+The interface follows the system light/dark appearance and uses native macOS materials. The project includes a dedicated Tweaky application icon designed for the same glass-inspired visual language.
 
 ## Requirements
 
@@ -17,14 +17,14 @@ The interface follows the system light/dark appearance and uses native macOS mat
 ## Run locally
 
 ```bash
-swift run QuickText
+swift run Tweaky
 ```
 
 For an application bundle:
 
 ```bash
 Scripts/package-app.sh release
-open dist/QuickText.app
+open dist/Tweaky.app
 ```
 
 Open **Settings** from the menu-bar icon, choose a provider and model, save the API key, and test the connection. The key is stored in the macOS Keychain, not in the repository or `UserDefaults`.
@@ -41,7 +41,7 @@ OCR runs locally. Recognized text remains editable and is sent to a provider onl
 ## Architecture
 
 ```text
-Sources/QuickText/
+Sources/Tweaky/
   App/       Application lifecycle and state
   AI/        Provider contract and prompt construction
   Capture/   Accessibility selection and OCR
