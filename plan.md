@@ -30,7 +30,7 @@ Deliver a fast native macOS text assistant: select text, invoke a configurable g
 
 ### 3. Cloud AI — complete
 
-- Implement OpenAI Responses, Anthropic Messages, and OpenAI-compatible chat completions behind `AIProvider`.
+- Implement OpenAI Responses, Anthropic Messages, Google Gemini GenerateContent, and OpenAI-compatible chat completions behind `AIProvider`.
 - Add cancellation, timeout, retry guidance, rate-limit messaging, and connection test.
 - Release correction first, then translation.
 
@@ -45,6 +45,7 @@ Deliver a fast native macOS text assistant: select text, invoke a configurable g
 - Automated provider-contract, prompt, secure-URL, debug-build, release-build, bundle metadata, and ad-hoc-signature checks are in place.
 - Manual compatibility checks remain for Mail, Notes, Slack, browser editors, revoked permissions, and direct replacement behavior.
 - Developer ID signing and Apple notarization are implemented in the release workflow; running them requires external Apple credentials stored as GitHub Actions secrets.
+- CodeQL, Dependabot, secret scanning, and push protection cover source, dependencies, and accidentally committed credentials.
 
 ## Definition of done for the MVP
 

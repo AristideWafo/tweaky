@@ -3,6 +3,7 @@ import Foundation
 enum AIProviderID: String, CaseIterable, Codable, Identifiable {
     case openAI
     case anthropic
+    case gemini
     case openAICompatible
 
     var id: String { rawValue }
@@ -10,6 +11,7 @@ enum AIProviderID: String, CaseIterable, Codable, Identifiable {
         switch self {
         case .openAI: "OpenAI"
         case .anthropic: "Anthropic"
+        case .gemini: "Google Gemini"
         case .openAICompatible: "OpenAI-compatible"
         }
     }
@@ -18,6 +20,7 @@ enum AIProviderID: String, CaseIterable, Codable, Identifiable {
         switch self {
         case .openAI: "gpt-5-mini"
         case .anthropic: "claude-sonnet-4-5"
+        case .gemini: "gemini-3.8-flash"
         case .openAICompatible: ""
         }
     }
@@ -26,6 +29,7 @@ enum AIProviderID: String, CaseIterable, Codable, Identifiable {
         switch self {
         case .openAI, .openAICompatible: "https://api.openai.com/v1"
         case .anthropic: "https://api.anthropic.com/v1"
+        case .gemini: "https://generativelanguage.googleapis.com/v1beta"
         }
     }
 }
