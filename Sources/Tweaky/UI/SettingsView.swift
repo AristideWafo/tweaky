@@ -13,6 +13,7 @@ private struct SettingsForm: View {
     @State private var apiKey = ""
     @State private var status = ""
     @State private var isTesting = false
+    @State private var hasStoredAPIKey = false
     @State private var accessibilityGranted = PermissionManager.hasAccessibilityAccess
     @State private var screenRecordingGranted = PermissionManager.hasScreenRecordingAccess
 
@@ -26,12 +27,30 @@ private struct SettingsForm: View {
                     store.settings.model = provider.defaultModel
                     store.settings.baseURL = provider.defaultBaseURL
                     status = ""
+                    refreshStoredKeyStatus()
                 }
-                TextField("Model", text: $store.settings.model)
+                LabeledContent("Model") {
+                    HStack {
+                        TextField("Model identifier", text: $store.settings.model)
+                        Button("Use Default") {
+                            store.settings.model = store.settings.provider.defaultModel
+                            status = "Default model restored."
+                        }
+                    }
+                }
                 if store.settings.provider == .openAICompatible {
-                    TextField("Base URL", text: $store.settings.baseURL)
+                    LabeledContent("Base URL") {
+                        TextField("https://…", text: $store.settings.baseURL)
+                    }
                 }
-                SecureField("API key", text: $apiKey)
+                LabeledContent("API key") {
+                    SecureField(hasStoredAPIKey ? "Stored in Keychain" : "Paste provider key", text: $apiKey)
+                }
+                if hasStoredAPIKey {
+                    Label("API key saved for \(store.settings.provider.displayName)", systemImage: "checkmark.circle.fill")
+                        .font(.callout)
+                        .foregroundStyle(.green)
+                }
                 HStack {
                     Button("Save API Key") { saveKey() }.disabled(apiKey.isEmpty)
                     Button("Test Connection") { testConnection() }
@@ -63,6 +82,7 @@ private struct SettingsForm: View {
             }
         }
         .padding()
+        .onAppear { refreshStoredKeyStatus() }
     }
 
     private func permissionRow(_ name: String, granted: Bool, request: @escaping () -> Void) -> some View {
@@ -75,12 +95,35 @@ private struct SettingsForm: View {
     }
 
     private func saveKey() {
-        do { try KeychainService.saveAPIKey(apiKey, for: store.settings.provider); apiKey = ""; status = "API key saved in Keychain." }
-        catch { status = "Could not save the API key." }
+        let cleanKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleanKey.isEmpty else { return }
+        do {
+            try KeychainService.saveAPIKey(cleanKey, for: store.settings.provider)
+            apiKey = ""
+            hasStoredAPIKey = true
+            status = "Saved securely. Use Test Connection to validate the provider and model."
+        } catch {
+            hasStoredAPIKey = false
+            status = error.localizedDescription
+        }
     }
     private func removeKey() {
-        do { try KeychainService.deleteAPIKey(for: store.settings.provider); status = "API key removed." }
-        catch { status = "Could not remove the API key." }
+        do {
+            try KeychainService.deleteAPIKey(for: store.settings.provider)
+            hasStoredAPIKey = false
+            status = "API key removed."
+        } catch {
+            status = error.localizedDescription
+        }
+    }
+
+    private func refreshStoredKeyStatus() {
+        do {
+            hasStoredAPIKey = try KeychainService.apiKey(for: store.settings.provider)?.isEmpty == false
+        } catch {
+            hasStoredAPIKey = false
+            status = error.localizedDescription
+        }
     }
 
     private func testConnection() {

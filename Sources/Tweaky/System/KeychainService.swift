@@ -13,10 +13,11 @@ enum KeychainService {
         let data = Data(value.utf8)
         let updateStatus = SecItemUpdate(identity as CFDictionary, [kSecValueData as String: data] as CFDictionary)
         if updateStatus == errSecSuccess { return }
-        guard updateStatus == errSecItemNotFound else { throw KeychainError.saveFailed }
+        guard updateStatus == errSecItemNotFound else { throw KeychainError.operationFailed("save", updateStatus) }
         var insert = identity
         insert[kSecValueData as String] = data
-        guard SecItemAdd(insert as CFDictionary, nil) == errSecSuccess else { throw KeychainError.saveFailed }
+        let addStatus = SecItemAdd(insert as CFDictionary, nil)
+        guard addStatus == errSecSuccess else { throw KeychainError.operationFailed("save", addStatus) }
     }
 
     static func apiKey(for provider: AIProviderID) throws -> String? {
@@ -29,15 +30,25 @@ enum KeychainService {
         var result: CFTypeRef?
         let status = SecItemCopyMatching(query as CFDictionary, &result)
         if status == errSecItemNotFound { return nil }
-        guard status == errSecSuccess, let data = result as? Data else { throw KeychainError.readFailed }
+        guard status == errSecSuccess, let data = result as? Data else { throw KeychainError.operationFailed("read", status) }
         return String(data: data, encoding: .utf8)
     }
 
     static func deleteAPIKey(for provider: AIProviderID) throws {
         let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: service, kSecAttrAccount as String: provider.rawValue]
         let status = SecItemDelete(query as CFDictionary)
-        guard status == errSecSuccess || status == errSecItemNotFound else { throw KeychainError.deleteFailed }
+        guard status == errSecSuccess || status == errSecItemNotFound else { throw KeychainError.operationFailed("delete", status) }
     }
 }
 
-enum KeychainError: Error { case saveFailed, readFailed, deleteFailed }
+enum KeychainError: LocalizedError {
+    case operationFailed(String, OSStatus)
+
+    var errorDescription: String? {
+        switch self {
+        case .operationFailed(let operation, let status):
+            let detail = SecCopyErrorMessageString(status, nil) as String? ?? "OSStatus \(status)"
+            return "Could not \(operation) the API key: \(detail)."
+        }
+    }
+}

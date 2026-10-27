@@ -5,7 +5,7 @@ import SwiftUI
 final class PanelController {
     private let panel: NSPanel
 
-    init(state: AppState) {
+    init(state: AppState, openSettings: @escaping () -> Void) {
         panel = NSPanel(
             contentRect: NSRect(x: 0, y: 0, width: 680, height: 420),
             styleMask: [.nonactivatingPanel, .fullSizeContentView],
@@ -19,9 +19,11 @@ final class PanelController {
         panel.isMovableByWindowBackground = true
         panel.backgroundColor = .clear
         panel.isOpaque = false
-        panel.contentView = NSHostingView(rootView: TweakyPanel(state: state) { [weak panel] in
-            panel?.orderOut(nil)
-        })
+        panel.contentView = NSHostingView(rootView: TweakyPanel(
+            state: state,
+            dismiss: { [weak panel] in panel?.orderOut(nil) },
+            openSettings: openSettings
+        ))
     }
 
     func show() {

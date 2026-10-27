@@ -3,6 +3,7 @@ import SwiftUI
 struct TweakyPanel: View {
     @ObservedObject var state: AppState
     let dismiss: () -> Void
+    let openSettings: () -> Void
     @FocusState private var isInputFocused: Bool
 
     var body: some View {
@@ -33,6 +34,18 @@ struct TweakyPanel: View {
             Spacer()
             Text(sourceLabel).foregroundStyle(.secondary).font(.caption)
             Text("Esc").foregroundStyle(.tertiary).font(.caption)
+            Button("Settings", systemImage: "gearshape", action: openSettings)
+                .labelStyle(.iconOnly)
+                .buttonStyle(.plain)
+                .help("Settings")
+            Button("Close", systemImage: "xmark.circle.fill") {
+                state.cancel()
+                dismiss()
+            }
+            .labelStyle(.iconOnly)
+            .buttonStyle(.plain)
+            .foregroundStyle(.secondary)
+            .help("Close")
         }
     }
 

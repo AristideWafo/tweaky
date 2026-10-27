@@ -31,16 +31,23 @@ struct GeminiProvider: AIProvider {
         request.httpBody = try JSONEncoder().encode(body)
 
         do {
-            let (data, response) = try await session.data(for: request)
-            try HTTPValidation.validate(response)
-            let decoded = try JSONDecoder().decode(ResponseBody.self, from: data)
-            let value = decoded.candidates
-                .flatMap(\.content.parts)
-                .compactMap(\.text)
-                .joined()
-                .trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !value.isEmpty else { throw AIProviderError.invalidResponse }
-            return value
+            for attempt in 0..<3 {
+                let (data, response) = try await session.data(for: request)
+                if attempt < 2, isTransient(response) {
+                    try await Task.sleep(for: .milliseconds(500 * (attempt + 1)))
+                    continue
+                }
+                try HTTPValidation.validate(response)
+                let decoded = try JSONDecoder().decode(ResponseBody.self, from: data)
+                let value = decoded.candidates
+                    .flatMap(\.content.parts)
+                    .compactMap(\.text)
+                    .joined()
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !value.isEmpty else { throw AIProviderError.invalidResponse }
+                return value
+            }
+            throw AIProviderError.serviceUnavailable
         } catch let error as AIProviderError {
             throw error
         } catch is CancellationError {
@@ -48,6 +55,11 @@ struct GeminiProvider: AIProvider {
         } catch {
             throw AIProviderError.transport(error.localizedDescription)
         }
+    }
+
+    private func isTransient(_ response: URLResponse) -> Bool {
+        guard let status = (response as? HTTPURLResponse)?.statusCode else { return false }
+        return status == 429 || [500, 502, 503, 504].contains(status)
     }
 }
 
