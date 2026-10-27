@@ -44,7 +44,7 @@ Deliver a fast native macOS text assistant: select text, invoke a configurable g
 
 - Automated provider-contract, prompt, secure-URL, debug-build, release-build, bundle metadata, and ad-hoc-signature checks are in place.
 - Manual compatibility checks remain for Mail, Notes, Slack, browser editors, revoked permissions, and direct replacement behavior.
-- Developer ID signing and Apple notarization require external Apple credentials before public distribution.
+- Developer ID signing and Apple notarization are implemented in the release workflow; running them requires external Apple credentials stored as GitHub Actions secrets.
 
 ## Definition of done for the MVP
 
@@ -57,4 +57,4 @@ Deliver a fast native macOS text assistant: select text, invoke a configurable g
 
 ## Release and rollback
 
-CI verifies every change. Tags matching `v*` publish an ad-hoc-signed archive and checksum through GitHub Releases. Public distribution must add Developer ID signing and notarization. Rollback means removing the affected release and publishing a corrected signed build; API-provider configuration remains backward compatible.
+CI verifies every change. Tags matching `v*` publish a Developer ID-signed, Apple-notarized archive and checksum through GitHub Releases. Missing release credentials fail the job before packaging. Rollback means removing the affected release and publishing a corrected signed build; API-provider configuration remains backward compatible.

@@ -21,7 +21,9 @@ install -m 755 "$binary_root/Tweaky" "$contents_root/MacOS/Tweaky"
 install -m 644 "$repository_root/Resources/Info.plist" "$contents_root/Info.plist"
 install -m 644 "$repository_root/Resources/AppIcon.png" "$contents_root/Resources/AppIcon.png"
 
-if [[ "${TWEAKY_ADHOC_SIGN:-1}" == "1" ]]; then
+if [[ -n "${TWEAKY_SIGNING_IDENTITY:-}" ]]; then
+    codesign --force --deep --options runtime --timestamp --sign "$TWEAKY_SIGNING_IDENTITY" "$app_root"
+elif [[ "${TWEAKY_ADHOC_SIGN:-1}" == "1" ]]; then
     codesign --force --deep --sign - "$app_root"
 fi
 
