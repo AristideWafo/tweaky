@@ -6,6 +6,8 @@ QuickText is a lightweight, native macOS writing assistant. A global shortcut op
 
 The MVP is implemented: menu-bar app, global shortcut, Spotlight-style panel, Accessibility selection capture, clipboard input, explicit local OCR, OpenAI/Anthropic/OpenAI-compatible providers, copy and direct-replacement output, Keychain storage, tests, packaging, CI, and tag-based GitHub releases.
 
+The interface follows the system light/dark appearance and uses native macOS materials. The project includes a dedicated QuickText application icon designed for the same glass-inspired visual language.
+
 ## Requirements
 
 - macOS 15 or later
