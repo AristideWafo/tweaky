@@ -19,6 +19,7 @@ rm -rf "$app_root"
 install -d "$contents_root/MacOS" "$contents_root/Resources"
 install -m 755 "$binary_root/QuickText" "$contents_root/MacOS/QuickText"
 install -m 644 "$repository_root/Resources/Info.plist" "$contents_root/Info.plist"
+install -m 644 "$repository_root/Resources/AppIcon.png" "$contents_root/Resources/AppIcon.png"
 
 if [[ "${QUICKTEXT_ADHOC_SIGN:-1}" == "1" ]]; then
     codesign --force --deep --sign - "$app_root"
