@@ -1,0 +1,33 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build release artifact
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Test
+        run: swift test
+      - name: Package application
+        run: Scripts/package-app.sh release
+      - name: Create archive and checksum
+        run: |
+          ditto -c -k --sequesterRsrc --keepParent dist/QuickText.app dist/QuickText.zip
+          shasum -a 256 dist/QuickText.zip > dist/QuickText.zip.sha256
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${{ github.ref_name }}" dist/QuickText.zip dist/QuickText.zip.sha256 --generate-notes --verify-tag
