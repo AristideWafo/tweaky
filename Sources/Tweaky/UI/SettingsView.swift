@@ -14,12 +14,14 @@ private struct SettingsForm: View {
     @State private var status = ""
     @State private var isTesting = false
     @State private var hasStoredAPIKey = false
+    @State private var isKeyVisible = false
+    @State private var statusIsError = false
     @State private var accessibilityGranted = PermissionManager.hasAccessibilityAccess
     @State private var screenRecordingGranted = PermissionManager.hasScreenRecordingAccess
 
     var body: some View {
         Form {
-            Section("AI") {
+            Section("AI Provider") {
                 Picker("Provider", selection: $store.settings.provider) {
                     ForEach(AIProviderID.allCases) { Text($0.displayName).tag($0) }
                 }
@@ -44,27 +46,50 @@ private struct SettingsForm: View {
                     }
                 }
                 LabeledContent("API key") {
-                    SecureField(hasStoredAPIKey ? "Stored in Keychain" : "Paste provider key", text: $apiKey)
+                    HStack {
+                        let prompt = hasStoredAPIKey ? "Stored in Keychain" : "Paste provider key"
+                        if isKeyVisible {
+                            TextField(prompt, text: $apiKey)
+                        } else {
+                            SecureField(prompt, text: $apiKey)
+                        }
+                        Button(isKeyVisible ? "Hide" : "Show", systemImage: isKeyVisible ? "eye.slash" : "eye") {
+                            isKeyVisible.toggle()
+                        }
+                        .labelStyle(.iconOnly)
+                        .buttonStyle(.plain)
+                        .foregroundStyle(.secondary)
+                    }
                 }
                 if hasStoredAPIKey {
-                    Label("API key saved for \(store.settings.provider.displayName)", systemImage: "checkmark.circle.fill")
+                    Label("API key saved securely", systemImage: "checkmark.circle.fill")
                         .font(.callout)
                         .foregroundStyle(.green)
                 }
                 HStack {
-                    Button("Save API Key") { saveKey() }.disabled(apiKey.isEmpty)
+                    Button("Save") { saveKey() }
+                        .buttonStyle(.borderedProminent)
+                        .disabled(apiKey.isEmpty)
                     Button("Test Connection") { testConnection() }
                         .disabled(isTesting)
-                    Button("Remove API Key", role: .destructive) { removeKey() }
+                    Button("Remove", role: .destructive) { removeKey() }
+                    Spacer()
                     if isTesting { ProgressView().controlSize(.small) }
                 }
-                if !status.isEmpty { Text(status).foregroundStyle(.secondary).font(.callout) }
+                if !status.isEmpty {
+                    HStack(spacing: 6) {
+                        Circle().fill(statusIsError ? .red : .green).frame(width: 8, height: 8)
+                        Text(status)
+                    }
+                    .font(.callout)
+                    .foregroundStyle(statusIsError ? .red : .green)
+                }
             }
             Section("Writing") {
                 TextField("Default translation language", text: $store.settings.targetLanguage)
             }
             Section("Keyboard") {
-                Picker("Global shortcut", selection: $store.settings.shortcut) {
+                Picker("Shortcut", selection: $store.settings.shortcut) {
                     ForEach(GlobalShortcut.allCases) { Text($0.displayName).tag($0) }
                 }
             }
@@ -81,7 +106,7 @@ private struct SettingsForm: View {
                     .font(.callout).foregroundStyle(.secondary)
             }
         }
-        .padding()
+        .formStyle(.grouped)
         .onAppear { refreshStoredKeyStatus() }
     }
 
@@ -128,6 +153,7 @@ private struct SettingsForm: View {
 
     private func testConnection() {
         status = ""
+        statusIsError = false
         isTesting = true
         Task { @MainActor in
             defer { isTesting = false }
@@ -138,6 +164,7 @@ private struct SettingsForm: View {
                 _ = try await provider.process(text: "Connection test.", action: .correct, targetLanguage: nil)
                 status = "Connection successful."
             } catch {
+                statusIsError = true
                 status = error.localizedDescription
             }
         }

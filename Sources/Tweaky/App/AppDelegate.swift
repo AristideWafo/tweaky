@@ -56,8 +56,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func installStatusItem() {
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
-        item.button?.image = NSImage(systemSymbolName: "text.badge.sparkles", accessibilityDescription: "Tweaky")
-        item.button?.toolTip = "Tweaky"
+        item.button?.image = NSImage(systemSymbolName: "sparkles", accessibilityDescription: "Tweaky")
+        item.button?.toolTip = "Tweaky is running"
 
         let menu = NSMenu()
         menu.addItem(withTitle: "Open Tweaky", action: #selector(openPanelFromMenu), keyEquivalent: "")
