@@ -33,6 +33,22 @@ struct ProviderTests {
         #expect(try await provider.process(text: "Texte", action: .correct, targetLanguage: nil) == "Texte corrigé")
     }
 
+    @Test("Gemini generates and parses content without putting the key in the URL")
+    func geminiGenerateContent() async throws {
+        let session = makeSession { request in
+            #expect(request.url?.path == "/v1beta/models/test-model:generateContent")
+            #expect(request.url?.query == nil)
+            #expect(request.value(forHTTPHeaderField: "x-goog-api-key") == "secret")
+            let body = #"{"candidates":[{"content":{"parts":[{"text":"Corrected by Gemini"}]}}]}"#.data(using: .utf8)!
+            return (HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!, body)
+        }
+        let provider = GeminiProvider(
+            apiKey: "secret", model: "test-model",
+            baseURL: URL(string: "https://generativelanguage.googleapis.com/v1beta")!, session: session
+        )
+        #expect(try await provider.process(text: "Text", action: .correct, targetLanguage: nil) == "Corrected by Gemini")
+    }
+
     @Test("Provider factory rejects insecure remote URLs")
     func rejectsInsecureRemoteURL() {
         var settings = AppSettings()

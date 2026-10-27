@@ -41,6 +41,8 @@ enum ProviderFactory {
             return OpenAIProvider(apiKey: apiKey, model: settings.model, baseURL: baseURL, style: .chatCompletions, session: session)
         case .anthropic:
             return AnthropicProvider(apiKey: apiKey, model: settings.model, baseURL: baseURL, session: session)
+        case .gemini:
+            return GeminiProvider(apiKey: apiKey, model: settings.model, baseURL: baseURL, session: session)
         }
     }
 
