@@ -25,9 +25,9 @@ jobs:
         run: Scripts/package-app.sh release
       - name: Create archive and checksum
         run: |
-          ditto -c -k --sequesterRsrc --keepParent dist/QuickText.app dist/QuickText.zip
-          shasum -a 256 dist/QuickText.zip > dist/QuickText.zip.sha256
+          ditto -c -k --sequesterRsrc --keepParent dist/Tweaky.app dist/Tweaky.zip
+          shasum -a 256 dist/Tweaky.zip > dist/Tweaky.zip.sha256
       - name: Publish GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "${{ github.ref_name }}" dist/QuickText.zip dist/QuickText.zip.sha256 --generate-notes --verify-tag
+        run: gh release create "${{ github.ref_name }}" dist/Tweaky.zip dist/Tweaky.zip.sha256 --generate-notes --verify-tag

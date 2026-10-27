@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import QuickText
+@testable import Tweaky
 
 @Suite("AI providers", .serialized)
 struct ProviderTests {

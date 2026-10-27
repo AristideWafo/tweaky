@@ -2,13 +2,13 @@
 import PackageDescription
 
 let package = Package(
-    name: "QuickText",
+    name: "Tweaky",
     platforms: [.macOS(.v15)],
     products: [
-        .executable(name: "QuickText", targets: ["QuickText"])
+        .executable(name: "Tweaky", targets: ["Tweaky"])
     ],
     targets: [
-        .executableTarget(name: "QuickText"),
-        .testTarget(name: "QuickTextTests", dependencies: ["QuickText"])
+        .executableTarget(name: "Tweaky"),
+        .testTarget(name: "TweakyTests", dependencies: ["Tweaky"])
     ]
 )

@@ -2,7 +2,7 @@ import Foundation
 import Security
 
 enum KeychainService {
-    private static let service = "com.quicktext.app"
+    private static let service = "com.aristidewafo.tweaky"
 
     static func saveAPIKey(_ value: String, for provider: AIProviderID) throws {
         let identity: [String: Any] = [

@@ -1,13 +1,13 @@
 import Foundation
 import Testing
-@testable import QuickText
+@testable import Tweaky
 
 @Suite("Settings")
 @MainActor
 struct SettingsTests {
     @Test("Non-secret preferences persist")
     func settingsPersist() {
-        let suiteName = "QuickTextTests-\(UUID().uuidString)"
+        let suiteName = "TweakyTests-\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!
         defer { defaults.removePersistentDomain(forName: suiteName) }
 

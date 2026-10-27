@@ -12,7 +12,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         hotKeyService = HotKeyService { [weak self] in self?.openPanel() }
         registerHotKey()
         settingsObserver = NotificationCenter.default.addObserver(
-            forName: .quickTextSettingsChanged, object: nil, queue: .main
+            forName: .tweakySettingsChanged, object: nil, queue: .main
         ) { [weak self] _ in
             Task { @MainActor in self?.registerHotKey() }
         }

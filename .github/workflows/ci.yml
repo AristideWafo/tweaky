@@ -3,7 +3,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [main, master]
+    branches: [main, master, prod]
 
 permissions:
   contents: read
@@ -29,4 +29,4 @@ jobs:
       - name: Package application
         run: Scripts/package-app.sh release
       - name: Validate application metadata
-        run: plutil -lint dist/QuickText.app/Contents/Info.plist
+        run: plutil -lint dist/Tweaky.app/Contents/Info.plist

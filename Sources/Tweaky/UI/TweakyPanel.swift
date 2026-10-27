@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct QuickPanel: View {
+struct TweakyPanel: View {
     @ObservedObject var state: AppState
     let dismiss: () -> Void
     @FocusState private var isInputFocused: Bool
@@ -29,7 +29,7 @@ struct QuickPanel: View {
 
     private var header: some View {
         HStack {
-            Label("QuickText", systemImage: "text.badge.sparkles").font(.headline)
+            Label("Tweaky", systemImage: "text.badge.sparkles").font(.headline)
             Spacer()
             Text(sourceLabel).foregroundStyle(.secondary).font(.caption)
             Text("Esc").foregroundStyle(.tertiary).font(.caption)
