@@ -61,7 +61,7 @@ Tests/       Unit tests
 
 ## CI
 
-GitHub Actions builds, tests, packages, and validates the app on pull requests and pushes to `main` or `master`. Tags matching `v*` create a GitHub release containing an ad-hoc-signed app archive and SHA-256 checksum.
+GitHub Actions builds, tests, packages, and validates the app on pull requests and pushes to `main`, `master`, or `prod`. Tags matching `v*` create a GitHub release containing an ad-hoc-signed app archive and SHA-256 checksum.
 
 Public distribution outside development still requires an Apple Developer ID certificate and notarization credentials. Those credentials intentionally do not exist in this repository.
 
