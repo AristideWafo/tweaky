@@ -21,15 +21,16 @@ final class AppState: ObservableObject {
 
     var canReplaceSelection: Bool { captureSource == .accessibility && !resultText.isEmpty }
 
-    func prepareForPresentation() {
+    func prepareForPresentation() async {
         cancel()
         resultText = ""
         errorMessage = nil
         statusMessage = nil
-        if let capture = selectionReader.readSelectedText() {
+        if let capture = await selectionReader.readSelectedText() {
             inputText = capture.text
             captureSource = capture.source
         } else {
+            inputText = ""
             captureSource = .manual
         }
     }
@@ -113,11 +114,12 @@ final class AppState: ObservableObject {
 
     func replaceSelection() {
         guard !resultText.isEmpty else { return }
-        if selectionReader.replaceSelection(with: resultText) {
-            statusMessage = "Selection replaced."
-        } else {
-            ClipboardService.copy(resultText)
-            statusMessage = "Direct replacement is unavailable; the result was copied instead."
+        let text = resultText
+        Task {
+            if await !selectionReader.replaceSelection(with: text) {
+                ClipboardService.copy(text)
+                statusMessage = "Direct replacement is unavailable; the result was copied instead."
+            }
         }
     }
 

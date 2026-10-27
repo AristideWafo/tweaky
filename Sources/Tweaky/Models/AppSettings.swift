@@ -20,7 +20,7 @@ enum AIProviderID: String, CaseIterable, Codable, Identifiable {
         switch self {
         case .openAI: "gpt-5-mini"
         case .anthropic: "claude-sonnet-4-5"
-        case .gemini: "gemini-3.8-flash"
+        case .gemini: "gemini-3.5-flash"
         case .openAICompatible: ""
         }
     }
