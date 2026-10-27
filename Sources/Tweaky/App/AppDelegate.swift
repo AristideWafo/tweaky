@@ -27,8 +27,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func openPanel() {
-        state.prepareForPresentation()
-        panelController.show()
+        Task {
+            // Capture first: showing the panel would move focus away from the selected text.
+            await state.prepareForPresentation()
+            panelController.show()
+        }
     }
 
     @objc func openSettings() {
