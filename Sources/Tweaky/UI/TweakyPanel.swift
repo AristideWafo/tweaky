@@ -1,4 +1,12 @@
+import AppKit
 import SwiftUI
+
+/// Colors sampled from Resources/AppIcon.png.
+enum Brand {
+    static let blue = Color(red: 0.28, green: 0.42, blue: 0.96)
+    static let violet = Color(red: 0.55, green: 0.36, blue: 0.96)
+    static let gradient = LinearGradient(colors: [blue, violet], startPoint: .topLeading, endPoint: .bottomTrailing)
+}
 
 struct TweakyPanel: View {
     @ObservedObject var state: AppState
@@ -6,132 +14,151 @@ struct TweakyPanel: View {
     let openSettings: () -> Void
     @FocusState private var isInputFocused: Bool
 
+    private let shape = RoundedRectangle(cornerRadius: 22, style: .continuous)
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 12) {
             header
-            TextField("Paste or type text…", text: $state.inputText, axis: .vertical)
-                .textFieldStyle(.plain)
-                .font(.body)
-                .lineLimit(3...8)
-                .padding(14)
-                .background(.background.opacity(0.55), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-                .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(.white.opacity(0.35)))
-                .focused($isInputFocused)
-                .accessibilityLabel("Text to process")
+            editor
             actionBar
             if !state.resultText.isEmpty { result }
             footer
         }
-        .padding(20)
-        .frame(width: 540)
-        .frame(maxHeight: 620)
+        .padding(16)
+        .frame(width: 560)
         .fixedSize(horizontal: false, vertical: true)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 28, style: .continuous).strokeBorder(.white.opacity(0.3)))
+        .background {
+            ZStack {
+                VisualEffectBackground()
+                Brand.gradient.opacity(0.10)
+            }
+            .clipShape(shape)
+        }
+        .overlay(shape.strokeBorder(.white.opacity(0.25)))
+        .tint(Brand.blue)
         .onAppear { isInputFocused = true }
         .onExitCommand { dismiss() }
     }
 
     private var header: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "sparkles")
-                .font(.system(size: 17, weight: .semibold))
-                .foregroundStyle(.white)
-                .frame(width: 34, height: 34)
-                .background(.blue.gradient, in: RoundedRectangle(cornerRadius: 9, style: .continuous))
-            Text("Tweaky").font(.title2.weight(.semibold))
+        HStack(spacing: 10) {
+            Image(nsImage: NSApp.applicationIconImage)
+                .resizable()
+                .frame(width: 26, height: 26)
+            Text("Tweaky").font(.headline)
+            Text(sourceLabel).font(.caption).foregroundStyle(.secondary)
             Spacer()
-            Label(sourceLabel, systemImage: sourceIcon)
-                .font(.callout)
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(.background.opacity(0.5), in: Capsule())
-            Divider().frame(height: 22)
             Button("Settings", systemImage: "gearshape", action: openSettings)
-                .labelStyle(.iconOnly)
-                .font(.title3)
-                .buttonStyle(.plain)
-                .foregroundStyle(.secondary)
                 .help("Settings")
             Button("Close", systemImage: "xmark", action: dismiss)
-                .labelStyle(.iconOnly)
-                .font(.callout.weight(.semibold))
-                .buttonStyle(.plain)
-                .foregroundStyle(.secondary)
-                .frame(width: 30, height: 30)
-                .background(.secondary.opacity(0.15), in: Circle())
-                .help("Close")
+                .help("Close (Esc)")
         }
+        .labelStyle(.iconOnly)
+        .buttonStyle(.borderless)
+        .foregroundStyle(.secondary)
+    }
+
+    /// Grows with its text up to a cap, then scrolls.
+    private var editor: some View {
+        ZStack(alignment: .topLeading) {
+            // Invisible copy of the text drives the height; TextEditor itself has no intrinsic height.
+            Text(state.inputText.isEmpty ? " " : state.inputText + "\n")
+                .font(.body)
+                .padding(.horizontal, 5)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .hidden()
+            if state.inputText.isEmpty {
+                Text("Paste or type text…")
+                    .foregroundStyle(.tertiary)
+                    .padding(.horizontal, 5)
+                    .allowsHitTesting(false)
+            }
+            TextEditor(text: $state.inputText)
+                .font(.body)
+                .scrollContentBackground(.hidden)
+                .focused($isInputFocused)
+                .accessibilityLabel("Text to process")
+        }
+        .frame(minHeight: 60, maxHeight: 260)
+        .padding(10)
+        .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(.white.opacity(0.15)))
     }
 
     private var actionBar: some View {
-        HStack(spacing: 8) {
-            ForEach(TextAction.allCases) { action in
-                pillButton(action.title, systemImage: action.systemImage, prominent: action == .correct) {
-                    state.process(action)
-                }
-                .keyboardShortcut(action == .correct ? .return : "t", modifiers: [.command])
-                .disabled(state.inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || state.isProcessing)
-            }
-            if state.isProcessing {
-                pillButton("Cancel", systemImage: "stop.circle") { state.cancel() }
-            }
-            Spacer()
-            pillButton("Paste", systemImage: "doc.on.clipboard") { state.paste() }
-            pillButton("Read Screen", systemImage: "viewfinder") { state.readScreen() }
-                .disabled(state.isProcessing)
+        // Falls back to icon-only secondary buttons when labels would not fit on one line.
+        ViewThatFits(in: .horizontal) {
+            actionRow(compact: false)
+            actionRow(compact: true)
         }
+        .controlSize(.large)
     }
 
-    private func pillButton(_ title: String, systemImage: String, prominent: Bool = false, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Label(title, systemImage: systemImage)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 8)
-                .foregroundStyle(prominent ? AnyShapeStyle(.white) : AnyShapeStyle(.primary))
-                .background(prominent ? AnyShapeStyle(.blue.gradient) : AnyShapeStyle(.background.opacity(0.55)), in: Capsule())
-                .contentShape(Capsule())
+    private func actionRow(compact: Bool) -> some View {
+        HStack(spacing: 8) {
+            let isEmpty = state.inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            Button(TextAction.correct.title, systemImage: TextAction.correct.systemImage) { state.process(.correct) }
+                .buttonStyle(.borderedProminent)
+                .keyboardShortcut(.return, modifiers: [.command])
+                .disabled(isEmpty || state.isProcessing)
+            Button(TextAction.translate.title, systemImage: TextAction.translate.systemImage) { state.process(.translate) }
+                .keyboardShortcut("t", modifiers: [.command])
+                .disabled(isEmpty || state.isProcessing)
+            if state.isProcessing {
+                Button("Cancel", systemImage: "stop.fill") { state.cancel() }
+            }
+            Spacer(minLength: 8)
+            Group {
+                Button("Paste", systemImage: "doc.on.clipboard") { state.paste() }
+                    .help("Paste from clipboard")
+                Button("Read Screen", systemImage: "viewfinder") { state.readScreen() }
+                    .help("Read text on screen")
+                    .disabled(state.isProcessing)
+            }
+            .labelStyle(compact ? AnyLabelStyle(.iconOnly) : AnyLabelStyle(.titleAndIcon))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.bordered)
+        .buttonBorderShape(.capsule)
+        .lineLimit(1)
+        .fixedSize(horizontal: true, vertical: false)
     }
 
     private var footer: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 6) {
             if state.isProcessing {
                 ProgressView().controlSize(.small)
                 Text(state.statusMessage ?? "Working…")
             } else if let error = state.errorMessage {
-                Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.red)
-                Text(error).foregroundStyle(.red).lineLimit(2)
-            } else {
-                Circle().fill(.green).frame(width: 8, height: 8)
-                Text(state.statusMessage ?? "Ready")
+                Label(error, systemImage: "exclamationmark.triangle.fill")
+                    .foregroundStyle(.red)
+                    .lineLimit(2)
+            } else if let status = state.statusMessage {
+                Text(status)
             }
             Spacer()
             Text(shortcutSymbol).foregroundStyle(.tertiary)
         }
-        .font(.callout)
+        .font(.caption)
         .foregroundStyle(.secondary)
     }
 
     private var result: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .trailing, spacing: 8) {
             ScrollView {
                 Text(state.resultText).textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
             }
-            .frame(maxHeight: 180)
+            .frame(maxHeight: 200)
             .fixedSize(horizontal: false, vertical: true)
-            .padding(14)
-            .background(.background.opacity(0.55), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .padding(12)
+            .background(Brand.gradient.opacity(0.12), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
             HStack(spacing: 8) {
-                Spacer()
-                pillButton("Copy", systemImage: "doc.on.doc") { state.copyResult() }
-                pillButton("Replace Selection", systemImage: "arrow.triangle.2.circlepath", prominent: true) {
-                    state.replaceSelection()
-                }
-                .disabled(!state.canReplaceSelection)
+                Button("Copy", systemImage: "doc.on.doc") { state.copyResult() }
+                    .buttonStyle(.bordered)
+                Button("Replace Selection", systemImage: "arrow.triangle.2.circlepath") { state.replaceSelection() }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(!state.canReplaceSelection)
             }
+            .buttonBorderShape(.capsule)
         }
     }
 
@@ -144,19 +171,29 @@ struct TweakyPanel: View {
         }
     }
 
-    private var sourceIcon: String {
-        switch state.captureSource {
-        case .accessibility: "selection.pin.in.out"
-        case .clipboard: "doc.on.clipboard"
-        case .ocr: "viewfinder"
-        case .manual: "doc.text"
-        }
-    }
-
     private var shortcutSymbol: String {
         switch state.settingsStore.settings.shortcut {
         case .optionSpace: "⌥ Space"
         case .commandShiftT: "⌘ ⇧ T"
         }
     }
+}
+
+private struct AnyLabelStyle: LabelStyle {
+    private let make: (Configuration) -> AnyView
+    init<S: LabelStyle>(_ style: S) { make = { AnyView(style.makeBody(configuration: $0)) } }
+    func makeBody(configuration: Configuration) -> some View { make(configuration) }
+}
+
+/// Behind-window blur, the same translucency Spotlight uses.
+private struct VisualEffectBackground: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSVisualEffectView {
+        let view = NSVisualEffectView()
+        view.material = .popover
+        view.blendingMode = .behindWindow
+        view.state = .active
+        return view
+    }
+
+    func updateNSView(_ nsView: NSVisualEffectView, context: Context) {}
 }

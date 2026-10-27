@@ -30,6 +30,7 @@ final class AppState: ObservableObject {
             inputText = capture.text
             captureSource = capture.source
         } else {
+            inputText = ""
             captureSource = .manual
         }
     }

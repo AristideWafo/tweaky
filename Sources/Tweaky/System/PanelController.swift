@@ -4,6 +4,15 @@ import SwiftUI
 /// Borderless panels refuse key status by default; Tweaky needs it for text input and click-outside dismissal.
 private final class KeyablePanel: NSPanel {
     override var canBecomeKey: Bool { true }
+
+    /// Content-driven resizes keep the origin, which grows the panel upward; keep the top edge fixed instead.
+    override func setFrame(_ frameRect: NSRect, display flag: Bool) {
+        var rect = frameRect
+        if rect.origin == frame.origin, rect.height != frame.height {
+            rect.origin.y = frame.maxY - rect.height
+        }
+        super.setFrame(rect, display: flag)
+    }
 }
 
 @MainActor
@@ -51,7 +60,11 @@ final class PanelController {
     }
 
     func show() {
-        panel.center()
+        // Spotlight-like placement: centered horizontally, top edge in the upper part of the screen.
+        if let screen = NSScreen.main?.visibleFrame {
+            let top = screen.maxY - screen.height * 0.18
+            panel.setFrameTopLeftPoint(NSPoint(x: screen.midX - panel.frame.width / 2, y: top))
+        }
         panel.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
     }
