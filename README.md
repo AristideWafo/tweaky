@@ -61,9 +61,9 @@ Tests/       Unit tests
 
 ## CI
 
-GitHub Actions builds, tests, packages, and validates the app on pull requests and pushes to `main`, `master`, or `prod`. Tags matching `v*` create a GitHub release containing an ad-hoc-signed app archive and SHA-256 checksum.
+GitHub Actions builds, tests, packages, and validates the app on pull requests and pushes to `main`, `master`, or `prod`. Tags matching `v*` create a Developer ID-signed, Apple-notarized GitHub release with a SHA-256 checksum.
 
-Public distribution outside development still requires an Apple Developer ID certificate and notarization credentials. Those credentials intentionally do not exist in this repository.
+The release workflow requires these GitHub Actions secrets: `SIGNING_CERTIFICATE_BASE64`, `SIGNING_CERTIFICATE_PASSWORD`, `SIGNING_IDENTITY`, `APPLE_ID`, `APPLE_TEAM_ID`, and `APPLE_APP_PASSWORD`. It fails closed when any credential is absent. The credentials intentionally do not exist in this repository.
 
 ## License
 
