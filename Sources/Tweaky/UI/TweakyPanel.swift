@@ -1,8 +1,8 @@
 import AppKit
 import SwiftUI
 
-/// Accent sampled from Resources/AppIcon.png; used sparingly, only for the primary action.
-private let brandBlue = Color(red: 0.28, green: 0.42, blue: 0.96)
+/// Brand indigo #4F3FE6 (see Branding/BRAND.md); used sparingly, only for the primary action.
+private let brandBlue = Color(red: 0.31, green: 0.25, blue: 0.90)
 
 struct TweakyPanel: View {
     @ObservedObject var state: AppState

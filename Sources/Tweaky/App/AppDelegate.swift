@@ -59,7 +59,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func installStatusItem() {
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
-        item.button?.image = NSImage(systemSymbolName: "sparkles", accessibilityDescription: "Tweaky")
+        // Fallback covers `swift run`, where the bundle has no MenuBarIcon resource.
+        let icon = NSImage(named: "MenuBarIcon") ?? NSImage(systemSymbolName: "character.cursor.ibeam", accessibilityDescription: "Tweaky")
+        icon?.isTemplate = true
+        icon?.size = NSSize(width: 18, height: 18)
+        item.button?.image = icon
         item.button?.toolTip = "Tweaky is running"
 
         let menu = NSMenu()
