@@ -1,12 +1,40 @@
-# Tweaky
+<p align="center">
+  <img src="Resources/AppIcon.png" width="128" alt="Tweaky logo">
+</p>
 
-Tweaky is a lightweight, native macOS writing assistant. A global shortcut opens a Spotlight-like panel to correct or translate selected text.
+<h1 align="center">Tweaky</h1>
+
+<p align="center">Select text anywhere on your Mac, press a shortcut, and get it corrected or translated in place.</p>
+
+Tweaky is a lightweight, native macOS writing assistant that lives in the menu bar. Select text in any app
+(Gmail, WhatsApp, Notes, Slack…), press **Option-Space**, and a small Spotlight-like panel opens with your text
+already in it. Correct or translate it with the AI provider of your choice, then copy the result or replace the
+original selection directly.
+
+## Features
+
+- **Works in any app**: reads the selection through Accessibility, with a clipboard fallback for apps that do not expose it.
+- **Correct and translate** with OpenAI, Anthropic, Google Gemini, or any OpenAI-compatible endpoint.
+- **Replace in place**: pastes the result back into the original text field, or copies it to the clipboard.
+- **Spotlight-like panel**: opens empty or pre-filled, sizes to its content, and disappears when you click elsewhere.
+- **Read Screen**: optional local OCR for text you cannot select.
+- **Private by design**: API keys in the macOS Keychain, no text stored, nothing sent until you trigger an action.
+- **Menu-bar app**: no Dock icon; the menu-bar glyph shows Tweaky is running and opens the panel or Settings.
+
+## Design
+
+The interface is calm and monochrome: ink on a lightly translucent surface, hairline borders, pill buttons, and
+[Google Sans](https://github.com/googlefonts/googlesans) (SIL Open Font License, bundled in `Resources/Fonts`).
+It follows the system light and dark appearance. Indigo `#4F3FE6` is the single accent.
+
+The logo is a lowercase *t* whose crossbar is a tilde (~), the sign for "adjust": Tweaky tweaks your text. Masters,
+colours, and usage rules live in [`Branding/`](Branding/BRAND.md).
 
 ## Status
 
-The MVP is implemented: menu-bar app, global shortcut, Spotlight-style panel, Accessibility selection capture, clipboard input, explicit local OCR, OpenAI/Anthropic/Google Gemini/OpenAI-compatible providers, copy and direct-replacement output, Keychain storage, tests, packaging, CI, security scanning, and tag-based GitHub releases.
-
-The interface follows the system light/dark appearance and uses native macOS materials. The project includes a dedicated Tweaky application icon designed for the same glass-inspired visual language.
+Version 0.2.0. Menu-bar app, global shortcut, Spotlight-style panel, selection capture and replacement, clipboard
+input, local OCR, four provider types, Keychain storage, tests, packaging, CI, security scanning, and tag-based
+GitHub releases are implemented.
 
 ## Requirements
 
@@ -47,7 +75,9 @@ Sources/Tweaky/
   Capture/   Accessibility selection and OCR
   Models/    Shared domain types and settings
   System/    Keychain, panel, and global shortcut boundaries
-  UI/        SwiftUI panel and settings
+  UI/        SwiftUI panel, settings, typography
+Resources/   Info.plist, app and menu-bar icons, bundled font
+Branding/    Logo masters and brand guide
 Tests/       Unit tests
 ```
 
@@ -68,4 +98,5 @@ The release workflow requires these GitHub Actions secrets: `SIGNING_CERTIFICATE
 
 ## License
 
-No license has been selected yet.
+No license has been selected yet for the code. Google Sans is distributed under the SIL Open Font License
+(`Resources/Fonts/OFL.txt`).
