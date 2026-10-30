@@ -9,7 +9,7 @@ struct OpenAIProvider: AIProvider {
     let style: APIStyle
     let session: URLSession
 
-    func process(text: String, action: TextAction, targetLanguage: String?) async throws -> String {
+    func process(text: String, action: TextAction, targetLanguage: String?, onPartial: PartialHandler?) async throws -> String {
         guard !apiKey.isEmpty else { throw AIProviderError.missingAPIKey }
         guard !model.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             throw AIProviderError.invalidConfiguration("Choose a model in Settings.")
@@ -26,13 +26,13 @@ struct OpenAIProvider: AIProvider {
             : OpenAIRequest.chat(model: model, instruction: instruction, text: text))
 
         do {
-            let (data, response) = try await session.data(for: request)
+            let (bytes, response) = try await session.bytes(for: request)
             try HTTPValidation.validate(response)
-            let decoded = try JSONDecoder().decode(OpenAIResponse.self, from: data)
-            guard let value = decoded.text?.trimmingCharacters(in: .whitespacesAndNewlines), !value.isEmpty else {
-                throw AIProviderError.invalidResponse
+            return try await ServerSentEvents.collect(bytes, onPartial: onPartial) { data in
+                guard let event = try? JSONDecoder().decode(StreamEvent.self, from: data) else { return nil }
+                if event.type == "error" || event.type == "response.failed" { throw AIProviderError.invalidResponse }
+                return event.type == "response.output_text.delta" ? event.delta : event.choices?.first?.delta.content
             }
-            return value
         } catch let error as AIProviderError {
             throw error
         } catch is CancellationError {
@@ -48,31 +48,37 @@ private struct OpenAIRequest: Encodable {
     let instructions: String?
     let input: String?
     let messages: [Message]?
+    let reasoning: Reasoning?
+    let stream = true
 
     struct Message: Encodable { let role: String; let content: String }
+    struct Reasoning: Encodable { let effort: String }
 
     static func responses(model: String, instruction: String, text: String) -> Self {
-        Self(model: model, instructions: instruction, input: text, messages: nil)
+        Self(model: model, instructions: instruction, input: text, messages: nil, reasoning: OpenAIProvider.minimalReasoning(for: model))
     }
 
     static func chat(model: String, instruction: String, text: String) -> Self {
         Self(model: model, instructions: nil, input: nil, messages: [
             Message(role: "system", content: instruction), Message(role: "user", content: text)
-        ])
+        ], reasoning: nil)
     }
 }
 
-private struct OpenAIResponse: Decodable {
-    let output: [Output]?
-    let choices: [Choice]?
-
-    struct Output: Decodable { let content: [Content]? }
-    struct Content: Decodable { let type: String?; let text: String? }
-    struct Choice: Decodable { let message: Message }
-    struct Message: Decodable { let content: String }
-
-    var text: String? {
-        output?.flatMap { $0.content ?? [] }.first(where: { $0.type == "output_text" })?.text
-            ?? choices?.first?.message.content
+extension OpenAIProvider {
+    /// Correction needs no reasoning. Only the original GPT-5 family accepts "minimal";
+    /// other models either reject `reasoning` or use different effort values, so they keep their default.
+    fileprivate static func minimalReasoning(for model: String) -> OpenAIRequest.Reasoning? {
+        guard model.hasPrefix("gpt-5"), !model.hasPrefix("gpt-5.") else { return nil }
+        return .init(effort: "minimal")
     }
+}
+
+/// One streamed event: Responses API (`type` + `delta`) or Chat Completions (`choices[].delta.content`).
+private struct StreamEvent: Decodable {
+    let type: String?
+    let delta: String?
+    let choices: [Choice]?
+    struct Choice: Decodable { let delta: ChoiceDelta }
+    struct ChoiceDelta: Decodable { let content: String? }
 }

@@ -88,7 +88,9 @@ final class AppState: ObservableObject {
                     throw AIProviderError.missingAPIKey
                 }
                 let provider = try ProviderFactory.make(settings: settings, apiKey: apiKey)
-                resultText = try await provider.process(text: text, action: action, targetLanguage: settings.targetLanguage)
+                resultText = try await provider.process(text: text, action: action, targetLanguage: settings.targetLanguage) { [weak self] partial in
+                    self?.resultText = partial
+                }
                 statusMessage = "Done."
             } catch is CancellationError {
                 statusMessage = "Cancelled."
