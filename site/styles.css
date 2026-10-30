@@ -314,9 +314,15 @@ textarea {
 .node-safari   { top: 525px; right: 82px;  animation-delay: -4.1s; }
 .node-terminal { top: 645px; right: 215px; animation-delay: -1.5s; }
 
-.orbit-key-word {
-  font-size: 15px;
+.orbit-node svg {
+  width: 24px;
+  height: 24px;
 }
+
+.key-indigo { color: #4f3fe6; background: #f4f2ff; }
+.key-amber  { color: #d97706; background: #fff8eb; }
+.key-teal   { color: #0d9488; background: #effcf9; }
+.key-rose   { color: #e11d48; background: #fff1f3; }
 
 @keyframes nodeFloat {
   0%, 100% { transform: translateY(0px); }
@@ -927,7 +933,7 @@ textarea {
 .tut-step-num {
   font-size: 11.5px;
   font-weight: 500;
-  color: var(--ink-tertiary);
+  color: var(--indigo);
 }
 
 .tut-step-title {
@@ -953,8 +959,17 @@ textarea {
 }
 
 .tut-step-btn.active .tut-progress-fill {
-  width: 100%;
-  transition: width 2.6s linear;
+  animation: tutFill var(--tut-step-ms, 3400ms) linear forwards;
+}
+
+/* Hovering the demo holds the current step. */
+.tutorial-paused .tut-step-btn.active .tut-progress-fill {
+  animation-play-state: paused;
+}
+
+@keyframes tutFill {
+  from { width: 0%; }
+  to { width: 100%; }
 }
 
 /* Stage holding the Clipped Asset + Spotlight Overlay + Animated Callout */
@@ -968,11 +983,28 @@ textarea {
   overflow: hidden;
 }
 
-.clipped-asset-viewport {
+/* Visible height = revealed share of the screenshot (976x652) at each step, as % of width. */
+.clipped-asset-mask {
   position: relative;
+  height: 0;
+  padding-bottom: 27.5%;
+  overflow: hidden;
+  border-radius: 20px;
+  transition: padding-bottom 0.7s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.clipped-asset-stage:has(.clip-step-2) .clipped-asset-mask { padding-bottom: 37.7%; }
+.clipped-asset-stage:has(.clip-step-3) .clipped-asset-mask { padding-bottom: 52%; }
+.clipped-asset-stage:has(.clip-step-4) .clipped-asset-mask { padding-bottom: 66.8%; }
+
+.clipped-asset-viewport {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   aspect-ratio: 976 / 652;
   margin: 0 auto;
+  container-type: inline-size;
   transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -1006,27 +1038,40 @@ textarea {
 /* Animated Indigo Highlight Ring over the active zone of the screenshot */
 .asset-spotlight-ring {
   position: absolute;
-  border: 2px solid var(--indigo);
-  background: rgba(79, 63, 230, 0.06);
+  border: 1.5px solid var(--indigo);
   border-radius: 14px;
   pointer-events: none;
-  transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  /* Dims everything around the active zone; the stage clips the shadow. */
+  box-shadow: 0 0 0 200vmax rgba(246, 246, 250, 0.58);
+  transition:
+    left 0.7s cubic-bezier(0.65, 0, 0.35, 1),
+    top 0.7s cubic-bezier(0.65, 0, 0.35, 1),
+    width 0.7s cubic-bezier(0.65, 0, 0.35, 1),
+    height 0.7s cubic-bezier(0.65, 0, 0.35, 1);
   z-index: 3;
 }
 
 .asset-spotlight-ring::after {
   content: attr(data-badge);
   position: absolute;
-  top: -12px;
-  right: 10px;
+  bottom: calc(100% + 8px);
+  left: 0;
   background: var(--indigo);
   color: #ffffff;
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 6px;
+  font-family: var(--font-brand);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 999px;
   white-space: nowrap;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.asset-spotlight-ring.settled::after {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* Animated Floating Cursor on the Asset */
@@ -1035,12 +1080,103 @@ textarea {
   width: 24px;
   height: 24px;
   pointer-events: none;
-  z-index: 4;
-  transition: top 0.55s cubic-bezier(0.22, 1, 0.36, 1), left 0.55s cubic-bezier(0.22, 1, 0.36, 1), transform 0.2s ease;
+  z-index: 5;
+  filter: drop-shadow(0 2px 4px rgba(31, 31, 31, 0.25));
+  transition:
+    top 0.85s cubic-bezier(0.65, 0, 0.35, 1),
+    left 0.85s cubic-bezier(0.65, 0, 0.35, 1),
+    transform 0.15s ease;
 }
 
 .asset-cursor.clicking {
-  transform: scale(0.84);
+  transform: scale(0.82);
+}
+
+/* Ring that expands from the cursor tip on each click */
+.asset-ripple {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  /* Centred on the cursor tip, which sits about 5px inside the cursor box. */
+  margin: -12px 0 0 -12px;
+  border-radius: 50%;
+  border: 2px solid var(--indigo);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.asset-ripple.go {
+  animation: assetRipple 0.6s ease-out;
+}
+
+@keyframes assetRipple {
+  from { opacity: 0.7; transform: scale(0.3); }
+  to { opacity: 0; transform: scale(1.6); }
+}
+
+/* The screenshot shows Replace Selection disabled; this pill shows it enabled during step 4. */
+.asset-replace-pill {
+  position: absolute;
+  left: 70.5%;
+  top: 77.5%;
+  width: 26%;
+  height: 8.9%;
+  border-radius: 999px;
+  background: #3a3a3a;
+  color: #ffffff;
+  font-size: 2.35cqw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.96);
+  transition: opacity 0.3s ease, transform 0.15s ease;
+  z-index: 2;
+}
+
+.asset-replace-pill.on { opacity: 1; transform: scale(1); }
+.asset-replace-pill.pressed { transform: scale(0.95); }
+
+.asset-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 4%;
+  transform: translate(-50%, 12px);
+  background: var(--ink);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 14px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 6;
+}
+
+.asset-toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+#tut-caption-text.fade-in { animation: captionIn 0.4s ease; }
+
+@keyframes captionIn {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orbit-node,
+  .asset-ripple.go,
+  #tut-caption-text.fade-in { animation: none; }
+  .asset-cursor,
+  .asset-spotlight-ring,
+  .clipped-asset-img,
+  .clipped-asset-mask,
+  .tut-progress-fill { transition: none !important; }
+  .tut-step-btn.active .tut-progress-fill { animation-duration: 0s; }
 }
 
 /* Tutorial Caption Bar under the clipped asset */
@@ -1144,9 +1280,9 @@ textarea {
   font-family: var(--font-brand);
   font-size: 13px;
   font-weight: 500;
-  color: var(--ink-secondary);
-  background: #ffffff;
-  border: 1px solid var(--hairline-strong);
+  color: var(--indigo);
+  background: var(--indigo-tint);
+  border: 1px solid transparent;
   padding: 4px 12px;
   border-radius: 999px;
   margin-bottom: 16px;
@@ -1208,9 +1344,9 @@ textarea {
   font-family: var(--font-brand);
   font-size: 12px;
   font-weight: 500;
-  color: var(--ink);
-  background: var(--surface-muted);
-  border: 1px solid var(--hairline);
+  color: var(--indigo);
+  background: var(--indigo-tint);
+  border: 1px solid transparent;
   padding: 3px 9px;
   border-radius: 6px;
 }
@@ -1281,12 +1417,12 @@ textarea {
   width: 38px;
   height: 38px;
   border-radius: 10px;
-  border: 1px solid var(--hairline-strong);
-  background: var(--surface-subtle);
+  border: 1px solid var(--indigo-border);
+  background: var(--indigo-tint);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--ink);
+  color: var(--indigo);
 }
 
 .feature-card h3 {
