@@ -36,13 +36,23 @@ enum AIProviderID: String, CaseIterable, Codable, Identifiable {
 
 enum GlobalShortcut: String, CaseIterable, Codable, Identifiable {
     case optionSpace
+    case optionShiftSpace
     case commandShiftT
 
     var id: String { rawValue }
     var displayName: String {
         switch self {
         case .optionSpace: "Option + Space"
+        case .optionShiftSpace: "Option + Shift + Space"
         case .commandShiftT: "Command + Shift + T"
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .optionSpace: "⌥ Space"
+        case .optionShiftSpace: "⌥ ⇧ Space"
+        case .commandShiftT: "⌘ ⇧ T"
         }
     }
 }
@@ -53,6 +63,24 @@ struct AppSettings: Codable, Equatable {
     var baseURL = "https://api.openai.com/v1"
     var targetLanguage = "English"
     var shortcut: GlobalShortcut = .optionSpace
+    /// Corrects the selection in place without opening the panel.
+    var instantShortcutEnabled = true
+    var instantShortcut: GlobalShortcut = .optionShiftSpace
+
+    init() {}
+
+    /// Missing keys fall back to defaults, so settings saved by older versions still load.
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let defaults = AppSettings()
+        provider = try container.decodeIfPresent(AIProviderID.self, forKey: .provider) ?? defaults.provider
+        model = try container.decodeIfPresent(String.self, forKey: .model) ?? defaults.model
+        baseURL = try container.decodeIfPresent(String.self, forKey: .baseURL) ?? defaults.baseURL
+        targetLanguage = try container.decodeIfPresent(String.self, forKey: .targetLanguage) ?? defaults.targetLanguage
+        shortcut = try container.decodeIfPresent(GlobalShortcut.self, forKey: .shortcut) ?? defaults.shortcut
+        instantShortcutEnabled = try container.decodeIfPresent(Bool.self, forKey: .instantShortcutEnabled) ?? defaults.instantShortcutEnabled
+        instantShortcut = try container.decodeIfPresent(GlobalShortcut.self, forKey: .instantShortcut) ?? defaults.instantShortcut
+    }
 }
 
 @MainActor

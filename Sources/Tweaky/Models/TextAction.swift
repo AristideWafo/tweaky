@@ -9,7 +9,13 @@ enum TextAction: String, CaseIterable, Identifiable {
     var systemImage: String { self == .correct ? "checkmark.circle" : "globe" }
 }
 
-enum CaptureSource { case accessibility, clipboard, ocr, manual }
+enum CaptureSource {
+    /// Read through Accessibility: the field can usually be written back directly.
+    case accessibility
+    /// Read by sending Command-C in an app that hides its selection from Accessibility.
+    case copiedSelection
+    case clipboard, ocr, manual
+}
 
 struct CaptureResult {
     let text: String

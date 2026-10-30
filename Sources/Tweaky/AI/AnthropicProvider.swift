@@ -6,7 +6,7 @@ struct AnthropicProvider: AIProvider {
     let baseURL: URL
     let session: URLSession
 
-    func process(text: String, action: TextAction, targetLanguage: String?) async throws -> String {
+    func process(text: String, action: TextAction, targetLanguage: String?, onPartial: PartialHandler?) async throws -> String {
         guard !apiKey.isEmpty else { throw AIProviderError.missingAPIKey }
         guard !model.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             throw AIProviderError.invalidConfiguration("Choose a model in Settings.")
@@ -16,7 +16,8 @@ struct AnthropicProvider: AIProvider {
             model: model,
             maxTokens: 4096,
             system: PromptBuilder.instruction(for: action, targetLanguage: targetLanguage),
-            messages: [.init(role: "user", content: text)]
+            messages: [.init(role: "user", content: text)],
+            stream: true
         )
         var request = URLRequest(url: baseURL.appending(path: "messages"), timeoutInterval: 45)
         request.httpMethod = "POST"
@@ -26,14 +27,16 @@ struct AnthropicProvider: AIProvider {
         request.httpBody = try JSONEncoder().encode(body)
 
         do {
-            let (data, response) = try await session.data(for: request)
+            let (bytes, response) = try await session.bytes(for: request)
             try HTTPValidation.validate(response)
-            let decoded = try JSONDecoder().decode(ResponseBody.self, from: data)
-            guard let value = decoded.content.first(where: { $0.type == "text" })?.text?
-                .trimmingCharacters(in: .whitespacesAndNewlines), !value.isEmpty else {
-                throw AIProviderError.invalidResponse
+            return try await ServerSentEvents.collect(bytes, onPartial: onPartial) { data in
+                guard let event = try? JSONDecoder().decode(StreamEvent.self, from: data) else { return nil }
+                switch event.type {
+                case "content_block_delta": return event.delta?.text
+                case "error": throw event.error?.type == "overloaded_error" ? AIProviderError.serviceUnavailable : AIProviderError.invalidResponse
+                default: return nil
+                }
             }
-            return value
         } catch let error as AIProviderError {
             throw error
         } catch is CancellationError {
@@ -49,12 +52,16 @@ private struct RequestBody: Encodable {
     let maxTokens: Int
     let system: String
     let messages: [Message]
+    let stream: Bool
 
-    enum CodingKeys: String, CodingKey { case model, maxTokens = "max_tokens", system, messages }
+    enum CodingKeys: String, CodingKey { case model, maxTokens = "max_tokens", system, messages, stream }
     struct Message: Encodable { let role: String; let content: String }
 }
 
-private struct ResponseBody: Decodable {
-    let content: [Content]
-    struct Content: Decodable { let type: String; let text: String? }
+private struct StreamEvent: Decodable {
+    let type: String
+    let delta: Delta?
+    let error: StreamError?
+    struct Delta: Decodable { let text: String? }
+    struct StreamError: Decodable { let type: String }
 }

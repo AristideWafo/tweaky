@@ -6,7 +6,7 @@ struct GeminiProvider: AIProvider {
     let baseURL: URL
     let session: URLSession
 
-    func process(text: String, action: TextAction, targetLanguage: String?) async throws -> String {
+    func process(text: String, action: TextAction, targetLanguage: String?, onPartial: PartialHandler?) async throws -> String {
         guard !apiKey.isEmpty else { throw AIProviderError.missingAPIKey }
         let cleanModel = model.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleanModel.isEmpty else {
@@ -19,10 +19,12 @@ struct GeminiProvider: AIProvider {
 
         let endpoint = baseURL
             .appending(path: "models")
-            .appending(path: "\(cleanModel):generateContent")
+            .appending(path: "\(cleanModel):streamGenerateContent")
+            .appending(queryItems: [URLQueryItem(name: "alt", value: "sse")])
         let body = RequestBody(
             systemInstruction: .init(parts: [.init(text: PromptBuilder.instruction(for: action, targetLanguage: targetLanguage))]),
-            contents: [.init(parts: [.init(text: text)])]
+            contents: [.init(parts: [.init(text: text)])],
+            generationConfig: Self.minimalThinking(for: cleanModel)
         )
         var request = URLRequest(url: endpoint, timeoutInterval: 45)
         request.httpMethod = "POST"
@@ -32,20 +34,19 @@ struct GeminiProvider: AIProvider {
 
         do {
             for attempt in 0..<3 {
-                let (data, response) = try await session.data(for: request)
+                let (bytes, response) = try await session.bytes(for: request)
                 if attempt < 2, isTransient(response) {
                     try await Task.sleep(for: .milliseconds(500 * (attempt + 1)))
                     continue
                 }
                 try HTTPValidation.validate(response)
-                let decoded = try JSONDecoder().decode(ResponseBody.self, from: data)
-                let value = decoded.candidates
-                    .flatMap(\.content.parts)
-                    .compactMap(\.text)
-                    .joined()
-                    .trimmingCharacters(in: .whitespacesAndNewlines)
-                guard !value.isEmpty else { throw AIProviderError.invalidResponse }
-                return value
+                return try await ServerSentEvents.collect(bytes, onPartial: onPartial) { data in
+                    try JSONDecoder().decode(ResponseBody.self, from: data).candidates?
+                        .flatMap(\.content.parts)
+                        .filter { $0.thought != true }
+                        .compactMap(\.text)
+                        .joined()
+                }
             }
             throw AIProviderError.serviceUnavailable
         } catch let error as AIProviderError {
@@ -57,19 +58,32 @@ struct GeminiProvider: AIProvider {
         }
     }
 
+    /// Correction and translation need no reasoning; thinking made replies about 5x slower (5.6 s vs 1.0 s).
+    /// Gemini 1.x/2.x models predate `thinkingLevel` and would reject it.
+    static func minimalThinking(for model: String) -> GeminiGenerationConfig? {
+        guard !model.hasPrefix("gemini-1"), !model.hasPrefix("gemini-2") else { return nil }
+        return .init(thinkingConfig: .init(thinkingLevel: "minimal"))
+    }
+
     private func isTransient(_ response: URLResponse) -> Bool {
         guard let status = (response as? HTTPURLResponse)?.statusCode else { return false }
         return status == 429 || [500, 502, 503, 504].contains(status)
     }
 }
 
+struct GeminiGenerationConfig: Encodable, Equatable {
+    let thinkingConfig: ThinkingConfig
+    struct ThinkingConfig: Encodable, Equatable { let thinkingLevel: String }
+}
+
 private struct RequestBody: Encodable {
     let systemInstruction: Content
     let contents: [Content]
+    let generationConfig: GeminiGenerationConfig?
 
     enum CodingKeys: String, CodingKey {
         case systemInstruction = "system_instruction"
-        case contents
+        case contents, generationConfig
     }
 
     struct Content: Encodable { let parts: [Part] }
@@ -77,8 +91,8 @@ private struct RequestBody: Encodable {
 }
 
 private struct ResponseBody: Decodable {
-    let candidates: [Candidate]
+    let candidates: [Candidate]?
     struct Candidate: Decodable { let content: Content }
     struct Content: Decodable { let parts: [Part] }
-    struct Part: Decodable { let text: String? }
+    struct Part: Decodable { let text: String?; let thought: Bool? }
 }

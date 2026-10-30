@@ -1,7 +1,44 @@
 import Foundation
 
+/// Receives the full text generated so far, each time a streamed chunk arrives.
+typealias PartialHandler = @MainActor @Sendable (String) -> Void
+
 protocol AIProvider: Sendable {
-    func process(text: String, action: TextAction, targetLanguage: String?) async throws -> String
+    /// Streams the response, reporting accumulated text through `onPartial`, and returns the final trimmed text.
+    func process(text: String, action: TextAction, targetLanguage: String?, onPartial: PartialHandler?) async throws -> String
+}
+
+extension AIProvider {
+    func process(text: String, action: TextAction, targetLanguage: String?) async throws -> String {
+        try await process(text: text, action: action, targetLanguage: targetLanguage, onPartial: nil)
+    }
+}
+
+/// Server-sent events: each `data:` line carries one JSON chunk; OpenAI ends with `[DONE]`.
+enum ServerSentEvents {
+    static func payload(of line: String) -> String? {
+        guard line.hasPrefix("data:") else { return nil }
+        return line.dropFirst(5).trimmingCharacters(in: .whitespaces)
+    }
+
+    /// Reads the stream, appending the text each event carries, and returns the trimmed result.
+    static func collect(
+        _ bytes: URLSession.AsyncBytes,
+        onPartial: PartialHandler?,
+        text: (Data) throws -> String?
+    ) async throws -> String {
+        var accumulated = ""
+        for try await line in bytes.lines {
+            guard let payload = payload(of: line) else { continue }
+            if payload == "[DONE]" { break }
+            guard let chunk = try text(Data(payload.utf8)), !chunk.isEmpty else { continue }
+            accumulated += chunk
+            await onPartial?(accumulated)
+        }
+        let value = accumulated.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !value.isEmpty else { throw AIProviderError.invalidResponse }
+        return value
+    }
 }
 
 enum AIProviderError: LocalizedError {

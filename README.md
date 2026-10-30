@@ -15,7 +15,12 @@ original selection directly.
 
 - **Works in any app**: reads the selection through Accessibility, with a clipboard fallback for apps that do not expose it.
 - **Correct and translate** with OpenAI, Anthropic, Google Gemini, or any OpenAI-compatible endpoint.
-- **Replace in place**: pastes the result back into the original text field, or copies it to the clipboard.
+- **Replace in place**: writes the result straight into the original field through Accessibility when the app allows it,
+  otherwise pastes it and restores your clipboard.
+- **Correct in place**: press **Option-Shift-Space** on a selection to correct it without opening the panel; the
+  menu-bar icon pulses while it works. Suspicious results are copied instead of replaced.
+- **Fast**: replies stream in as they are generated, and models are asked for minimal reasoning (about 1 s on Gemini).
+- **Keyboard flow**: **⌘↩** corrects, then **⌘↩** again replaces the selection; **⇧⌘C** copies the result.
 - **Spotlight-like panel**: opens empty or pre-filled, sizes to its content, and disappears when you click elsewhere.
 - **Read Screen**: optional local OCR for text you cannot select.
 - **Private by design**: API keys in the macOS Keychain, no text stored, nothing sent until you trigger an action.

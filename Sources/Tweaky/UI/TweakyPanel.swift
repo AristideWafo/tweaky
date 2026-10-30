@@ -102,10 +102,13 @@ struct TweakyPanel: View {
             let isEmpty = state.inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             Button(TextAction.correct.title) { state.process(.correct) }
                 .buttonStyle(PillButtonStyle(prominent: true))
-                .keyboardShortcut(.return, modifiers: [.command])
+                // Once a result can replace the selection, ⌘↩ moves to Replace: select, ⌥Space, ⌘↩, ⌘↩.
+                .keyboardShortcut(state.canReplaceSelection ? nil : KeyboardShortcut(.return, modifiers: .command))
+                .help("Correct (⌘↩)")
                 .disabled(isEmpty || state.isProcessing)
             Button(TextAction.translate.title) { state.process(.translate) }
                 .keyboardShortcut("t", modifiers: [.command])
+                .help("Translate (⌘T)")
                 .disabled(isEmpty || state.isProcessing)
             if state.isProcessing {
                 Button("Cancel") { state.cancel() }
@@ -160,8 +163,13 @@ struct TweakyPanel: View {
                 Spacer()
                 Button("Copy") { state.copyResult() }
                     .buttonStyle(PillButtonStyle())
+                    .keyboardShortcut("c", modifiers: [.command, .shift])
+                    .help("Copy (⇧⌘C)")
+                    .disabled(state.isProcessing)
                 Button("Replace Selection") { state.replaceSelection() }
                     .buttonStyle(PillButtonStyle(prominent: true))
+                    .keyboardShortcut(state.canReplaceSelection ? KeyboardShortcut(.return, modifiers: .command) : nil)
+                    .help("Replace Selection (⌘↩)")
                     .disabled(!state.canReplaceSelection)
             }
         }
@@ -169,19 +177,14 @@ struct TweakyPanel: View {
 
     private var sourceLabel: String {
         switch state.captureSource {
-        case .accessibility: "Selection"
+        case .accessibility, .copiedSelection: "Selection"
         case .clipboard: "Clipboard"
         case .ocr: "Screen OCR"
         case .manual: "Manual input"
         }
     }
 
-    private var shortcutSymbol: String {
-        switch state.settingsStore.settings.shortcut {
-        case .optionSpace: "⌥ Space"
-        case .commandShiftT: "⌘ ⇧ T"
-        }
-    }
+    private var shortcutSymbol: String { state.settingsStore.settings.shortcut.symbol }
 }
 
 private struct AnyLabelStyle: LabelStyle {
