@@ -22,7 +22,13 @@ private struct SettingsForm: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 28) {
-                Text("Settings").font(.brand(30))
+                HStack(spacing: 12) {
+                    Image(nsImage: NSApp.applicationIconImage)
+                        .resizable()
+                        .frame(width: 36, height: 36)
+                        .accessibilityHidden(true)
+                    Text("Settings").font(.brand(30))
+                }
                 providerSection
                 section("Writing") {
                     row("Translate to") {

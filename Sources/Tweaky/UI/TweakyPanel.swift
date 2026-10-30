@@ -36,7 +36,11 @@ struct TweakyPanel: View {
     }
 
     private var header: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 10) {
+        HStack(spacing: 10) {
+            Image(nsImage: NSApp.applicationIconImage)
+                .resizable()
+                .frame(width: 24, height: 24)
+                .accessibilityHidden(true)
             Text("Tweaky").font(.brand(22))
             Text(shortcutSymbol)
                 .font(.system(size: 11, weight: .medium, design: .monospaced))
