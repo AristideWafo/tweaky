@@ -17,19 +17,20 @@
 | Name | HEX | RGB |
 |---|---|---|
 | Tweaky Indigo | `#4F3FE6` | 79 63 230 |
-| Icon gradient top | `#6353F2` | 99 83 242 |
-| Icon gradient bottom | `#3F30D4` | 63 48 212 |
+| Ink | `#1F1F1F` | 31 31 31 |
 
-Use the indigo sparingly in the UI: primary action only. The gradient is for the app icon only.
+The UI is monochrome (ink on white, hairline borders, Google Sans). Indigo is the single accent: the app icon
+background and the shortcut badge. No gradients, shadows or glows anywhere.
 
 ## Rules
 
-- Clear space: at least the stem width (36/256 of the symbol) on every side.
+- Clear space: at least the stem width (26/256 of the symbol) on every side.
 - Minimum size: 16 px. The symbol is tested at 16, 20, 24 and 32 px.
 - Approved backgrounds: white, black, Tweaky Indigo, macOS window materials.
 - Do not: rotate, stretch, outline, add shadows or glows, recolour the parts separately, or add sparkles.
 
 ## Construction
 
-256 grid. Stem 36 wide with round caps; hook is a quarter ring (radii 30/66). Tilde is two half rings
-(centreline radius 28), drawn 32 wide, slightly thinner than the stem as an optical correction.
+256 grid, weight matched to Google Sans Regular. Stem 26 wide with round caps; hook is a quarter ring
+(radii 35/61). Tilde is two half rings (centreline radius 28), drawn 22 wide, slightly thinner than the stem as an
+optical correction. App icon: flat `#4F3FE6` on the Apple 824/1024 grid, glyph scaled 2.5x and centred optically.
