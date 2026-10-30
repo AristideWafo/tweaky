@@ -14,6 +14,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         terminateOtherInstances()
+        BrandFont.register()
         NSApp.setActivationPolicy(.accessory)
         installStatusItem()
         hotKeyService = HotKeyService { [weak self] in self?.openPanel() }
@@ -44,8 +45,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let view = SettingsView().environmentObject(state)
         let window = NSWindow(contentViewController: NSHostingController(rootView: view))
         window.title = "Tweaky Settings"
-        window.styleMask = [.titled, .closable, .miniaturizable]
-        window.setContentSize(NSSize(width: 600, height: 590))
+        window.styleMask = [.titled, .closable, .miniaturizable, .fullSizeContentView]
+        window.titleVisibility = .hidden
+        window.titlebarAppearsTransparent = true
+        window.isMovableByWindowBackground = true
+        window.isOpaque = false
+        window.backgroundColor = .clear
+        window.setContentSize(NSSize(width: 540, height: 640))
         window.center()
         window.isReleasedWhenClosed = false
         settingsWindowController = NSWindowController(window: window)
@@ -59,7 +65,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func installStatusItem() {
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
-        item.button?.image = NSImage(systemSymbolName: "sparkles", accessibilityDescription: "Tweaky")
+        // Fallback covers `swift run`, where the bundle has no MenuBarIcon resource.
+        let icon = NSImage(named: "MenuBarIcon") ?? NSImage(systemSymbolName: "character.cursor.ibeam", accessibilityDescription: "Tweaky")
+        icon?.isTemplate = true
+        icon?.size = NSSize(width: 18, height: 18)
+        item.button?.image = icon
         item.button?.toolTip = "Tweaky is running"
 
         let menu = NSMenu()
