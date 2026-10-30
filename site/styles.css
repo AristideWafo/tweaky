@@ -1220,10 +1220,28 @@ textarea {
 .ecosystem-strip {
   position: relative;
   z-index: 3;
-  margin-top: 52px;
-  padding-top: 32px;
+  margin-top: 112px;
+  padding: 32px 0 72px;
   border-top: 1px solid var(--hairline);
+  background: var(--bg);
   text-align: center;
+}
+
+/* Fades the orbit rings out above the strip so the two never overlap. */
+.ecosystem-strip::before {
+  content: "";
+  position: absolute;
+  left: -24px;
+  right: -24px;
+  bottom: 100%;
+  height: 96px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), var(--bg));
+  pointer-events: none;
+}
+
+/* The strip carries the hero's bottom spacing, so no ring shows below it either. */
+.hero {
+  padding-bottom: 0;
 }
 
 .ecosystem-caption {
