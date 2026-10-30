@@ -19,19 +19,43 @@ enum BrandFont {
 /// Text-only pill buttons: near-black filled for the main action, hairline outline otherwise.
 struct PillButtonStyle: ButtonStyle {
     var prominent = false
-    @Environment(\.isEnabled) private var isEnabled
 
     func makeBody(configuration: Configuration) -> some View {
+        PillButton(configuration: configuration, prominent: prominent)
+    }
+}
+
+/// Separate view so the pill can track hover, like the landing page buttons.
+private struct PillButton: View {
+    let configuration: ButtonStyleConfiguration
+    let prominent: Bool
+    @Environment(\.isEnabled) private var isEnabled
+    @State private var isHovered = false
+
+    var body: some View {
         configuration.label
-            .font(.brand(14))
+            .font(.brand(14, weight: .medium))
             .lineLimit(1)
             .padding(.horizontal, 16)
-            .frame(height: 34)
-            .foregroundStyle(prominent ? Color(nsColor: .textBackgroundColor) : Color.primary)
-            .background(prominent ? Color.primary.opacity(0.88) : Color.primary.opacity(0.03), in: Capsule())
-            .overlay { if !prominent { Capsule().strokeBorder(Color.primary.opacity(0.12)) } }
+            .frame(height: 32)
+            .foregroundStyle(prominent ? Color.white : Color.primary)
+            .background(fill, in: Capsule())
+            .overlay { if !prominent { Capsule().strokeBorder(Color.primary.opacity(isActive ? 0.22 : 0.12)) } }
             .contentShape(Capsule())
-            .opacity(isEnabled ? (configuration.isPressed ? 0.7 : 1) : 0.35)
+            .scaleEffect(configuration.isPressed ? 0.97 : 1)
+            .opacity(isEnabled ? 1 : 0.45)
+            .onHover { isHovered = $0 }
+            .animation(.easeOut(duration: 0.14), value: isActive)
+    }
+
+    private var isActive: Bool { isEnabled && (isHovered || configuration.isPressed) }
+
+    private var fill: Color {
+        if prominent {
+            // #2B2B2B at rest, #1F1F1F on hover; stays dark in Dark Mode so the label stays white.
+            return isActive ? Color(white: 0.12) : Color(white: 0.17)
+        }
+        return Color.primary.opacity(isActive ? 0.07 : 0.03)
     }
 }
 

@@ -1,12 +1,9 @@
 (() => {
   // DOM Elements - Stage & Panel
   const scenarioTabs = document.querySelectorAll(".scenario-tab");
-  const orbitNodes = document.querySelectorAll(".orbit-node");
   const simStage = document.getElementById("sim-stage");
   const realCaptureView = document.getElementById("real-capture-view");
-  const toggleRealShotBtn = document.getElementById("toggle-real-shot-btn");
   const backToInteractiveBtn = document.getElementById("back-to-interactive-btn");
-  const replayDemoBtn = document.getElementById("replay-demo-btn");
 
   const simAppName = document.getElementById("sim-app-name");
   const simShortcutStep = document.getElementById("sim-shortcut-step");
@@ -39,6 +36,13 @@
   const assetCursor = document.getElementById("asset-cursor");
   const tutCaptionBadge = document.getElementById("tut-caption-badge");
   const tutCaptionText = document.getElementById("tut-caption-text");
+  const assetReplacePill = document.getElementById("asset-replace-pill");
+  const assetRipple = document.getElementById("asset-ripple");
+  const assetToast = document.getElementById("asset-toast");
+  const TUT_STEP_MS = 3400;
+  // Cursor travel time in the CSS transition; clicks land just after it arrives.
+  const CURSOR_TRAVEL_MS = 850;
+  let tutorialPaused = false;
 
   const TUTORIAL_STEPS = [
     {
@@ -75,10 +79,10 @@
       step: 3,
       clipClass: "clip-step-3",
       spotlight: {
-        left: "3.1%",
-        top: "59.5%",
-        width: "74.5%",
-        height: "14.8%",
+        left: "2.2%",
+        top: "60%",
+        width: "78%",
+        height: "16.5%",
         badge: "3. Streaming ~1 s · Résultat"
       },
       cursor: { left: "48%", top: "68%", click: false },
@@ -164,12 +168,29 @@
     if (show) {
       simStage.style.display = "block";
       realCaptureView.classList.remove("visible");
-      toggleRealShotBtn.textContent = "Voir le tutoriel clippé (Asset macOS)";
     } else {
       simStage.style.display = "none";
       realCaptureView.classList.add("visible");
-      toggleRealShotBtn.textContent = "Ouvrir le simulateur interactif";
     }
+  }
+
+  function clickAt(left, top) {
+    assetCursor.classList.add("clicking");
+    later(() => assetCursor.classList.remove("clicking"), 160);
+    if (!assetRipple) return;
+    assetRipple.style.left = left;
+    assetRipple.style.top = top;
+    assetRipple.classList.remove("go");
+    void assetRipple.offsetWidth; // restart the animation
+    assetRipple.classList.add("go");
+  }
+
+  function scheduleNextStep(nextStep) {
+    later(() => {
+      // Hovering the demo holds the current step; leaving restarts it (see mouseleave).
+      if (currentScenario !== "screenshot" || tutorialPaused) return;
+      applyTutorialStep(nextStep, true);
+    }, TUT_STEP_MS);
   }
 
   function applyTutorialStep(stepNumber, autoAdvance = true) {
@@ -178,11 +199,9 @@
     const cfg = TUTORIAL_STEPS.find((s) => s.step === stepNumber) || TUTORIAL_STEPS[0];
 
     tutStepBtns.forEach((btn) => {
-      const isMatch = Number(btn.dataset.tutStep) === cfg.step;
       btn.classList.remove("active");
-      if (isMatch) {
-        // Trigger reflow so the CSS progress bar restarts cleanly
-        void btn.offsetWidth;
+      if (Number(btn.dataset.tutStep) === cfg.step) {
+        void btn.offsetWidth; // restart the progress bar
         btn.classList.add("active");
       }
     });
@@ -193,34 +212,59 @@
     }
 
     if (assetSpotlightRing) {
-      assetSpotlightRing.style.left = cfg.spotlight.left;
-      assetSpotlightRing.style.top = cfg.spotlight.top;
-      assetSpotlightRing.style.width = cfg.spotlight.width;
-      assetSpotlightRing.style.height = cfg.spotlight.height;
+      Object.assign(assetSpotlightRing.style, {
+        left: cfg.spotlight.left,
+        top: cfg.spotlight.top,
+        width: cfg.spotlight.width,
+        height: cfg.spotlight.height
+      });
+      assetSpotlightRing.classList.remove("settled");
       assetSpotlightRing.setAttribute("data-badge", cfg.spotlight.badge);
+      later(() => assetSpotlightRing.classList.add("settled"), 650);
     }
+
+    assetReplacePill?.classList.remove("on", "pressed");
+    assetToast?.classList.remove("on");
 
     if (assetCursor) {
       assetCursor.style.left = cfg.cursor.left;
       assetCursor.style.top = cfg.cursor.top;
       assetCursor.classList.remove("clicking");
+      if (cfg.step === 4) later(() => assetReplacePill?.classList.add("on"), 300);
       if (cfg.cursor.click) {
-        later(() => assetCursor.classList.add("clicking"), 520);
-        later(() => assetCursor.classList.remove("clicking"), 820);
+        later(() => {
+          clickAt(cfg.cursor.left, cfg.cursor.top);
+          if (cfg.step === 4) {
+            assetReplacePill?.classList.add("pressed");
+            later(() => assetReplacePill?.classList.remove("pressed"), 160);
+            later(() => assetToast?.classList.add("on"), 350);
+          }
+        }, CURSOR_TRAVEL_MS + 100);
       }
     }
 
     if (tutCaptionBadge) tutCaptionBadge.textContent = cfg.badgeText;
-    if (tutCaptionText) tutCaptionText.innerHTML = cfg.captionHtml;
-
-    if (autoAdvance) {
-      const nextStep = cfg.step < 4 ? cfg.step + 1 : 1;
-      later(() => {
-        if (currentScenario === "screenshot") {
-          applyTutorialStep(nextStep, true);
-        }
-      }, 2650);
+    if (tutCaptionText) {
+      tutCaptionText.innerHTML = cfg.captionHtml;
+      tutCaptionText.classList.remove("fade-in");
+      void tutCaptionText.offsetWidth;
+      tutCaptionText.classList.add("fade-in");
     }
+
+    if (autoAdvance) scheduleNextStep(cfg.step < 4 ? cfg.step + 1 : 1);
+  }
+
+  if (realCaptureView) {
+    realCaptureView.style.setProperty("--tut-step-ms", `${TUT_STEP_MS}ms`);
+    realCaptureView.addEventListener("mouseenter", () => {
+      tutorialPaused = true;
+      realCaptureView.classList.add("tutorial-paused");
+    });
+    realCaptureView.addEventListener("mouseleave", () => {
+      tutorialPaused = false;
+      realCaptureView.classList.remove("tutorial-paused");
+      if (currentScenario === "screenshot") applyTutorialStep(currentTutStep, true);
+    });
   }
 
   // Run one of the 5 demo scenarios
@@ -482,35 +526,6 @@
       const stepNum = Number(btn.dataset.tutStep) || 1;
       applyTutorialStep(stepNum, true);
     });
-  });
-
-  // Orbit App Nodes Clicks
-  orbitNodes.forEach((node) => {
-    node.addEventListener("click", () => {
-      orbitNodes.forEach((n) => n.classList.remove("active"));
-      node.classList.add("active");
-      currentApp = {
-        name: node.dataset.app,
-        sample: node.dataset.sample,
-        corrected: node.dataset.corrected,
-        translated: node.dataset.translated
-      };
-      runScenario(currentScenario === "screenshot" ? "correct" : currentScenario);
-    });
-  });
-
-  // Replay & Toggle Clipped Tutorial / Simulator Buttons
-  replayDemoBtn.addEventListener("click", () => {
-    runScenario(currentScenario);
-  });
-
-  toggleRealShotBtn.addEventListener("click", () => {
-    const isShowingReal = realCaptureView.classList.contains("visible");
-    if (isShowingReal) {
-      runScenario("correct");
-    } else {
-      runScenario("screenshot");
-    }
   });
 
   backToInteractiveBtn.addEventListener("click", () => {
