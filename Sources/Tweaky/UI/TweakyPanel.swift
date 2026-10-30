@@ -184,12 +184,7 @@ struct TweakyPanel: View {
         }
     }
 
-    private var shortcutSymbol: String {
-        switch state.settingsStore.settings.shortcut {
-        case .optionSpace: "⌥ Space"
-        case .commandShiftT: "⌘ ⇧ T"
-        }
-    }
+    private var shortcutSymbol: String { state.settingsStore.settings.shortcut.symbol }
 }
 
 private struct AnyLabelStyle: LabelStyle {

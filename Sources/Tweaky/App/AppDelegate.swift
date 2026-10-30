@@ -8,6 +8,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self?.openSettings()
     }
     private var hotKeyService: HotKeyService?
+    private var instantHotKeyService: HotKeyService?
+    private var instantTask: Task<Void, Never>?
     private var settingsObserver: NSObjectProtocol?
     private var statusItem: NSStatusItem?
     private var settingsWindowController: NSWindowController?
@@ -18,6 +20,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.setActivationPolicy(.accessory)
         installStatusItem()
         hotKeyService = HotKeyService { [weak self] in self?.openPanel() }
+        instantHotKeyService = HotKeyService(identifier: 2) { [weak self] in self?.instantTweak() }
         registerHotKey()
         settingsObserver = NotificationCenter.default.addObserver(
             forName: .tweakySettingsChanged, object: nil, queue: .main
@@ -96,6 +99,39 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func registerHotKey() {
-        hotKeyService?.start(shortcut: state.settingsStore.settings.shortcut)
+        let settings = state.settingsStore.settings
+        hotKeyService?.start(shortcut: settings.shortcut)
+        // The panel shortcut wins when both are set to the same keys.
+        if settings.instantShortcutEnabled, settings.instantShortcut != settings.shortcut {
+            instantHotKeyService?.start(shortcut: settings.instantShortcut)
+        } else {
+            instantHotKeyService?.stop()
+        }
+    }
+
+    /// Corrects the selection in place; the menu-bar icon pulses while the provider works.
+    private func instantTweak() {
+        guard instantTask == nil else { return }
+        let button = statusItem?.button
+        let pulse = Task { @MainActor in
+            while !Task.isCancelled {
+                NSAnimationContext.runAnimationGroup({ $0.duration = 0.4; button?.animator().alphaValue = 0.3 }, completionHandler: nil)
+                try? await Task.sleep(for: .milliseconds(450))
+                NSAnimationContext.runAnimationGroup({ $0.duration = 0.4; button?.animator().alphaValue = 1 }, completionHandler: nil)
+                try? await Task.sleep(for: .milliseconds(450))
+            }
+        }
+        instantTask = Task {
+            let outcome = await state.instantCorrect()
+            pulse.cancel()
+            button?.alphaValue = 1
+            instantTask = nil
+            switch outcome {
+            case .replaced: break
+            case .unchanged: Notifier.post("No corrections needed.")
+            case .noSelection: Notifier.post("Select some text first, then press the shortcut again.")
+            case .copied(let message), .failed(let message): Notifier.post(message)
+            }
+        }
     }
 }

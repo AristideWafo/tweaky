@@ -21,4 +21,14 @@ struct SettingsTests {
         #expect(restored.settings.model == "test-model")
         #expect(restored.settings.shortcut == .commandShiftT)
     }
+
+    @Test("Settings saved before the instant shortcut existed still load")
+    func legacySettingsLoad() throws {
+        let legacy = #"{"provider":"gemini","model":"gemini-3.5-flash","baseURL":"https://generativelanguage.googleapis.com/v1beta","targetLanguage":"French","shortcut":"optionSpace"}"#
+        let settings = try JSONDecoder().decode(AppSettings.self, from: Data(legacy.utf8))
+        #expect(settings.provider == .gemini)
+        #expect(settings.targetLanguage == "French")
+        #expect(settings.instantShortcutEnabled)
+        #expect(settings.instantShortcut == .optionShiftSpace)
+    }
 }

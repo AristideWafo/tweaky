@@ -36,13 +36,37 @@ private struct SettingsForm: View {
                     }
                 }
                 section("Keyboard") {
-                    row("Shortcut") {
-                        Picker("Shortcut", selection: $store.settings.shortcut) {
+                    row("Open Tweaky") {
+                        Picker("Open Tweaky", selection: $store.settings.shortcut) {
                             ForEach(GlobalShortcut.allCases) { Text($0.displayName).tag($0) }
                         }
                         .labelsHidden()
                         .fixedSize()
                     }
+                    Divider()
+                    row("Correct in place") {
+                        Toggle("Correct in place", isOn: $store.settings.instantShortcutEnabled)
+                            .labelsHidden()
+                            .toggleStyle(.switch)
+                            .controlSize(.small)
+                        Picker("Correct in place shortcut", selection: $store.settings.instantShortcut) {
+                            ForEach(GlobalShortcut.allCases) { Text($0.displayName).tag($0) }
+                        }
+                        .labelsHidden()
+                        .fixedSize()
+                        .disabled(!store.settings.instantShortcutEnabled)
+                    }
+                }
+                if store.settings.instantShortcutEnabled, store.settings.instantShortcut == store.settings.shortcut {
+                    Text("Both shortcuts use the same keys, so Correct in place is off. Pick another shortcut.")
+                        .font(.brand(12))
+                        .foregroundStyle(.red)
+                        .padding(.horizontal, 4)
+                } else if store.settings.instantShortcutEnabled {
+                    Text("Select text in any app and press \(store.settings.instantShortcut.symbol) to correct it without opening Tweaky.")
+                        .font(.brand(12))
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 4)
                 }
                 section("Permissions") {
                     permissionRow("Accessibility", granted: accessibilityGranted) {
