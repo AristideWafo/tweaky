@@ -13,7 +13,7 @@
   --surface-muted: #f4f4f6;
   --ink: #1f1f1f;
   --ink-secondary: rgba(31, 31, 31, 0.62);
-  --ink-tertiary: rgba(31, 31, 31, 0.38);
+  --ink-tertiary: rgba(31, 31, 31, 0.55);
   --hairline: rgba(31, 31, 31, 0.08);
   --hairline-strong: rgba(31, 31, 31, 0.14);
   --indigo: #4f3fe6;
@@ -108,16 +108,6 @@ textarea {
   display: block;
 }
 
-.nav-version-tag {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--indigo);
-  background: var(--indigo-tint);
-  padding: 2px 7px;
-  border-radius: 6px;
-}
-
 .nav-links {
   display: flex;
   align-items: center;
@@ -195,17 +185,6 @@ textarea {
 .btn-pill-dark:hover {
   background: #333333;
   border-color: #333333;
-}
-
-.btn-pill-indigo {
-  background: var(--indigo);
-  color: #ffffff;
-  border-color: var(--indigo);
-}
-
-.btn-pill-indigo:hover {
-  background: #4232d4;
-  border-color: #4232d4;
 }
 
 .btn-pill-sm {
@@ -302,64 +281,23 @@ textarea {
   z-index: 2;
 }
 
+/* Keycaps: white bubbles with a soft shadow, ink glyph, like the reference's floating app bubbles */
 .orbit-node {
   position: absolute;
-  pointer-events: auto;
   width: 56px;
   height: 56px;
   border-radius: 50%;
   background: #ffffff;
-  border: 1px solid var(--hairline-strong);
+  border: 1px solid var(--hairline);
+  box-shadow: 0 6px 18px rgba(31, 31, 31, 0.06);
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: border-color 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+  font-family: var(--font-brand);
+  font-size: 20px;
+  color: var(--ink);
+  user-select: none;
   animation: nodeFloat 5s ease-in-out infinite;
-}
-
-.orbit-node:hover,
-.orbit-node.active {
-  border-color: var(--indigo);
-  background: #ffffff;
-  transform: scale(1.1) !important;
-}
-
-.orbit-node.active::after {
-  content: "";
-  position: absolute;
-  inset: -4px;
-  border-radius: 50%;
-  border: 1.5px solid var(--indigo);
-  opacity: 0.35;
-}
-
-.orbit-node svg {
-  width: 26px;
-  height: 26px;
-}
-
-.orbit-node-tooltip {
-  position: absolute;
-  bottom: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%) translateY(4px);
-  background: var(--ink);
-  color: #ffffff;
-  font-size: 11px;
-  font-weight: 500;
-  padding: 4px 9px;
-  border-radius: 6px;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.15s ease, transform 0.15s ease;
-}
-
-.orbit-node:hover .orbit-node-tooltip,
-.orbit-node.active .orbit-node-tooltip {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
 }
 
 /* Left side orbit positions (matching Deflexai's balanced arc) */
@@ -375,6 +313,10 @@ textarea {
 .node-github   { top: 375px; right: 195px; animation-delay: -2.9s; }
 .node-safari   { top: 525px; right: 82px;  animation-delay: -4.1s; }
 .node-terminal { top: 645px; right: 215px; animation-delay: -1.5s; }
+
+.orbit-key-word {
+  font-size: 15px;
+}
 
 @keyframes nodeFloat {
   0%, 100% { transform: translateY(0px); }
@@ -410,11 +352,6 @@ textarea {
   gap: 6px;
 }
 
-.hero-meta-item img {
-  width: 15px;
-  height: 15px;
-}
-
 .hero-meta-sep {
   width: 3px;
   height: 3px;
@@ -423,7 +360,7 @@ textarea {
 }
 
 .hero-title {
-  font-size: clamp(2.45rem, 5.1vw, 4.15rem);
+  font-size: clamp(2.1rem, 5.1vw, 4.15rem);
   font-weight: 700;
   line-height: 1.09;
   letter-spacing: -0.035em;
@@ -431,58 +368,12 @@ textarea {
   margin-bottom: 20px;
 }
 
-/* Inline floating badges inside the headline (Motion reference style) */
-.inline-badge {
-  display: inline-flex;
-  align-items: center;
+.hero-actions {
+  display: flex;
   justify-content: center;
-  vertical-align: middle;
-  line-height: 1;
-  margin: 0 4px;
-  position: relative;
-  top: -0.06em;
-}
-
-.inline-badge-symbol {
-  width: 0.92em;
-  height: 0.92em;
-  border-radius: 0.24em;
-  background: var(--indigo);
-  padding: 0.16em;
-  transform: rotate(-5deg);
-  transition: transform 0.2s ease;
-}
-
-.inline-badge-symbol:hover {
-  transform: rotate(0deg) scale(1.06);
-}
-
-.inline-badge-symbol img {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-.inline-badge-key {
-  font-family: var(--font-mono);
-  font-size: 0.36em;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--indigo);
-  background: var(--indigo-tint);
-  border: 1px solid var(--indigo-border);
-  padding: 0.32em 0.65em;
-  border-radius: 0.45em;
-  transform: rotate(2.5deg);
-  transition: transform 0.2s ease;
-}
-
-.inline-badge-key:hover {
-  transform: rotate(0deg) scale(1.04);
-}
-
-.accent-dot {
-  color: var(--indigo);
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
 }
 
 .hero-subtitle {
@@ -499,11 +390,7 @@ textarea {
   font-weight: 500;
 }
 
-/* Hero Waitlist Form & CTAs */
-.hero-waitlist {
-  max-width: 540px;
-  margin: 0 auto 14px;
-}
+/* Waitlist bar (bottom section) */
 
 .waitlist-bar {
   display: flex;
@@ -532,32 +419,6 @@ textarea {
 
 .waitlist-bar input[type="email"]::placeholder {
   color: var(--ink-tertiary);
-}
-
-.hero-secondary-actions {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  font-size: 12.5px;
-  color: var(--ink-secondary);
-  margin-bottom: 36px;
-  flex-wrap: wrap;
-}
-
-.hero-secondary-actions button {
-  background: none;
-  border: none;
-  color: var(--indigo);
-  font-weight: 500;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.hero-secondary-actions button:hover {
-  text-decoration: underline;
 }
 
 .waitlist-feedback {
@@ -627,8 +488,7 @@ textarea {
 }
 
 .scenario-tab .tab-kbd {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
+  font-size: 11px;
   padding: 1px 5px;
   border-radius: 4px;
   background: rgba(31, 31, 31, 0.08);
@@ -1065,10 +925,9 @@ textarea {
 }
 
 .tut-step-num {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  font-weight: 600;
-  color: var(--indigo);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--ink-tertiary);
 }
 
 .tut-step-title {
@@ -1262,16 +1121,6 @@ textarea {
   color: var(--ink);
 }
 
-.eco-item code {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--ink-secondary);
-  background: var(--surface-muted);
-  padding: 2px 6px;
-  border-radius: 5px;
-}
-
 /* ==========================================================================
    SECTIONS COMMON LAYOUT
    ========================================================================== */
@@ -1292,14 +1141,15 @@ textarea {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  font-family: var(--font-mono);
-  font-size: 11.5px;
+  font-family: var(--font-brand);
+  font-size: 13px;
   font-weight: 500;
-  color: var(--indigo);
-  background: var(--indigo-tint);
-  padding: 4px 10px;
-  border-radius: 6px;
-  margin-bottom: 14px;
+  color: var(--ink-secondary);
+  background: #ffffff;
+  border: 1px solid var(--hairline-strong);
+  padding: 4px 12px;
+  border-radius: 999px;
+  margin-bottom: 16px;
 }
 
 .section-title {
@@ -1355,21 +1205,13 @@ textarea {
 }
 
 .kbd-badge {
-  font-family: var(--font-mono);
-  font-size: 11.5px;
+  font-family: var(--font-brand);
+  font-size: 12px;
   font-weight: 500;
-  color: var(--indigo);
-  background: var(--indigo-tint);
-  padding: 3px 8px;
-  border-radius: 6px;
-}
-
-.tag-outline {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--ink-secondary);
-  border: 1px solid var(--hairline-strong);
-  padding: 2px 8px;
+  color: var(--ink);
+  background: var(--surface-muted);
+  border: 1px solid var(--hairline);
+  padding: 3px 9px;
   border-radius: 6px;
 }
 
@@ -1399,8 +1241,7 @@ textarea {
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .pr-flow-step {
@@ -1446,12 +1287,6 @@ textarea {
   align-items: center;
   justify-content: center;
   color: var(--ink);
-}
-
-.feature-icon.indigo {
-  background: var(--indigo-tint);
-  border-color: var(--indigo-border);
-  color: var(--indigo);
 }
 
 .feature-card h3 {
@@ -1767,6 +1602,25 @@ textarea {
 }
 
 @media (max-width: 560px) {
+  .navbar-wrapper {
+    padding: 0 16px;
+  }
+  /* GitHub stays reachable from the hero; the navbar keeps only the main action. */
+  .nav-actions .btn-pill:not(.btn-pill-dark) {
+    display: none;
+  }
+  .hero {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .hero-meta-strip {
+    flex-wrap: wrap;
+    justify-content: center;
+    border-radius: 16px;
+  }
+  .tutorial-step-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
   .waitlist-bar {
     flex-direction: column;
     border-radius: 18px;

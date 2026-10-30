@@ -1,12 +1,9 @@
 (() => {
   // DOM Elements - Stage & Panel
   const scenarioTabs = document.querySelectorAll(".scenario-tab");
-  const orbitNodes = document.querySelectorAll(".orbit-node");
   const simStage = document.getElementById("sim-stage");
   const realCaptureView = document.getElementById("real-capture-view");
-  const toggleRealShotBtn = document.getElementById("toggle-real-shot-btn");
   const backToInteractiveBtn = document.getElementById("back-to-interactive-btn");
-  const replayDemoBtn = document.getElementById("replay-demo-btn");
 
   const simAppName = document.getElementById("sim-app-name");
   const simShortcutStep = document.getElementById("sim-shortcut-step");
@@ -164,11 +161,9 @@
     if (show) {
       simStage.style.display = "block";
       realCaptureView.classList.remove("visible");
-      toggleRealShotBtn.textContent = "Voir le tutoriel clippé (Asset macOS)";
     } else {
       simStage.style.display = "none";
       realCaptureView.classList.add("visible");
-      toggleRealShotBtn.textContent = "Ouvrir le simulateur interactif";
     }
   }
 
@@ -482,35 +477,6 @@
       const stepNum = Number(btn.dataset.tutStep) || 1;
       applyTutorialStep(stepNum, true);
     });
-  });
-
-  // Orbit App Nodes Clicks
-  orbitNodes.forEach((node) => {
-    node.addEventListener("click", () => {
-      orbitNodes.forEach((n) => n.classList.remove("active"));
-      node.classList.add("active");
-      currentApp = {
-        name: node.dataset.app,
-        sample: node.dataset.sample,
-        corrected: node.dataset.corrected,
-        translated: node.dataset.translated
-      };
-      runScenario(currentScenario === "screenshot" ? "correct" : currentScenario);
-    });
-  });
-
-  // Replay & Toggle Clipped Tutorial / Simulator Buttons
-  replayDemoBtn.addEventListener("click", () => {
-    runScenario(currentScenario);
-  });
-
-  toggleRealShotBtn.addEventListener("click", () => {
-    const isShowingReal = realCaptureView.classList.contains("visible");
-    if (isShowingReal) {
-      runScenario("correct");
-    } else {
-      runScenario("screenshot");
-    }
   });
 
   backToInteractiveBtn.addEventListener("click", () => {
