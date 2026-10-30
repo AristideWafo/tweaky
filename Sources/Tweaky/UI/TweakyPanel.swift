@@ -169,7 +169,7 @@ struct TweakyPanel: View {
 
     private var sourceLabel: String {
         switch state.captureSource {
-        case .accessibility: "Selection"
+        case .accessibility, .copiedSelection: "Selection"
         case .clipboard: "Clipboard"
         case .ocr: "Screen OCR"
         case .manual: "Manual input"

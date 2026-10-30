@@ -19,7 +19,9 @@ final class AppState: ObservableObject {
         self.settingsStore = settingsStore
     }
 
-    var canReplaceSelection: Bool { captureSource == .accessibility && !resultText.isEmpty }
+    var canReplaceSelection: Bool {
+        [.accessibility, .copiedSelection].contains(captureSource) && !resultText.isEmpty && !isProcessing
+    }
 
     func prepareForPresentation() async {
         cancel()
