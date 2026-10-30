@@ -105,6 +105,7 @@ private struct SettingsForm: View {
             }
         }
         .formStyle(.grouped)
+        .font(.brand(13))
         .onAppear { refreshStoredKeyStatus() }
     }
 

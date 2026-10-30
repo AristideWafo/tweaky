@@ -1,8 +1,8 @@
 import AppKit
 import SwiftUI
 
-/// Brand indigo #4F3FE6 (see Branding/BRAND.md); used sparingly, only for the primary action.
-private let brandBlue = Color(red: 0.31, green: 0.25, blue: 0.90)
+/// Brand indigo #4F3FE6 (see Branding/BRAND.md); only used for the shortcut badge.
+private let brandIndigo = Color(red: 0.31, green: 0.25, blue: 0.90)
 
 struct TweakyPanel: View {
     @ObservedObject var state: AppState
@@ -10,45 +10,52 @@ struct TweakyPanel: View {
     let openSettings: () -> Void
     @FocusState private var isInputFocused: Bool
 
-    private let shape = RoundedRectangle(cornerRadius: 22, style: .continuous)
+    private let shape = RoundedRectangle(cornerRadius: 20, style: .continuous)
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             header
             editor
             actionBar
             if !state.resultText.isEmpty {
-                result.transition(.opacity.combined(with: .move(edge: .top)))
+                Divider()
+                result.transition(.opacity)
             }
-            footer
+            if hasFooter { footer }
         }
         .animation(.easeOut(duration: 0.2), value: state.resultText.isEmpty)
-        .padding(16)
+        .font(.brand(14))
+        .padding(20)
         .frame(width: 560)
         .fixedSize(horizontal: false, vertical: true)
-        .background(VisualEffectBackground().clipShape(shape))
+        .background(Color(nsColor: .textBackgroundColor), in: shape)
+        .overlay(shape.strokeBorder(Color.primary.opacity(0.08)))
         .background(OverlayScrollers(trigger: state.inputText.count + state.resultText.count))
-        .tint(brandBlue)
         .onAppear { isInputFocused = true }
         .onExitCommand { dismiss() }
     }
 
     private var header: some View {
-        HStack(spacing: 10) {
-            Image(nsImage: NSApp.applicationIconImage)
-                .resizable()
-                .frame(width: 26, height: 26)
-            Text("Tweaky").font(.headline)
-            Text(sourceLabel).font(.caption).foregroundStyle(.secondary)
+        HStack(alignment: .firstTextBaseline, spacing: 10) {
+            Text("Tweaky").font(.brand(22))
+            Text(shortcutSymbol)
+                .font(.system(size: 11, weight: .medium, design: .monospaced))
+                .foregroundStyle(brandIndigo)
+                .padding(.horizontal, 7)
+                .padding(.vertical, 2)
+                .background(brandIndigo.opacity(0.1), in: RoundedRectangle(cornerRadius: 6, style: .continuous))
             Spacer()
-            Button("Settings", systemImage: "gearshape", action: openSettings)
-                .help("Settings")
-            Button("Close", systemImage: "xmark", action: dismiss)
-                .help("Close (Esc)")
+            Text(sourceLabel).font(.brand(12)).foregroundStyle(.secondary)
+            Group {
+                Button("Settings", systemImage: "gearshape", action: openSettings)
+                    .help("Settings")
+                Button("Close", systemImage: "xmark", action: dismiss)
+                    .help("Close (Esc)")
+            }
+            .labelStyle(.iconOnly)
+            .buttonStyle(.borderless)
+            .foregroundStyle(.secondary)
         }
-        .labelStyle(.iconOnly)
-        .buttonStyle(.borderless)
-        .foregroundStyle(.secondary)
     }
 
     /// Grows with its text up to a cap, then scrolls.
@@ -56,25 +63,26 @@ struct TweakyPanel: View {
         ZStack(alignment: .topLeading) {
             // Invisible copy of the text drives the height; TextEditor itself has no intrinsic height.
             Text(state.inputText.isEmpty ? " " : state.inputText + "\n")
-                .font(.body)
+                .font(.brand(16))
                 .padding(.horizontal, 5)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .hidden()
             if state.inputText.isEmpty {
                 Text("Paste or type text…")
+                    .font(.brand(16))
                     .foregroundStyle(.tertiary)
                     .padding(.horizontal, 5)
                     .allowsHitTesting(false)
             }
             TextEditor(text: $state.inputText)
-                .font(.body)
+                .font(.brand(16))
                 .scrollContentBackground(.hidden)
                 .focused($isInputFocused)
                 .accessibilityLabel("Text to process")
         }
         .frame(minHeight: 60, maxHeight: 260)
-        .padding(10)
-        .background(.quaternary.opacity(0.35), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .padding(12)
+        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Color.primary.opacity(0.1)))
     }
 
     private var actionBar: some View {
@@ -83,21 +91,20 @@ struct TweakyPanel: View {
             actionRow(compact: false)
             actionRow(compact: true)
         }
-        .controlSize(.large)
     }
 
     private func actionRow(compact: Bool) -> some View {
         HStack(spacing: 8) {
             let isEmpty = state.inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            Button(TextAction.correct.title, systemImage: TextAction.correct.systemImage) { state.process(.correct) }
-                .buttonStyle(.borderedProminent)
+            Button(TextAction.correct.title) { state.process(.correct) }
+                .buttonStyle(PillButtonStyle(prominent: true))
                 .keyboardShortcut(.return, modifiers: [.command])
                 .disabled(isEmpty || state.isProcessing)
-            Button(TextAction.translate.title, systemImage: TextAction.translate.systemImage) { state.process(.translate) }
+            Button(TextAction.translate.title) { state.process(.translate) }
                 .keyboardShortcut("t", modifiers: [.command])
                 .disabled(isEmpty || state.isProcessing)
             if state.isProcessing {
-                Button("Cancel", systemImage: "stop.fill") { state.cancel() }
+                Button("Cancel") { state.cancel() }
             }
             Spacer(minLength: 8)
             Group {
@@ -107,12 +114,14 @@ struct TweakyPanel: View {
                     .help("Read text on screen")
                     .disabled(state.isProcessing)
             }
-            .labelStyle(compact ? AnyLabelStyle(.iconOnly) : AnyLabelStyle(.titleAndIcon))
+            .labelStyle(compact ? AnyLabelStyle(.iconOnly) : AnyLabelStyle(.titleOnly))
         }
-        .buttonStyle(.bordered)
-        .buttonBorderShape(.capsule)
-        .lineLimit(1)
+        .buttonStyle(PillButtonStyle())
         .fixedSize(horizontal: true, vertical: false)
+    }
+
+    private var hasFooter: Bool {
+        state.isProcessing || state.errorMessage != nil || state.statusMessage != nil
     }
 
     private var footer: some View {
@@ -127,30 +136,30 @@ struct TweakyPanel: View {
             } else if let status = state.statusMessage {
                 Text(status)
             }
-            Spacer()
-            Text(shortcutSymbol).foregroundStyle(.tertiary)
         }
-        .font(.caption)
+        .font(.brand(12))
         .foregroundStyle(.secondary)
     }
 
     private var result: some View {
-        VStack(alignment: .trailing, spacing: 8) {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Result").font(.brand(12, weight: .medium)).foregroundStyle(.secondary)
             ScrollView {
-                Text(state.resultText).textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
+                Text(state.resultText)
+                    .font(.brand(16))
+                    .textSelection(.enabled)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
             .frame(maxHeight: 200)
             .fixedSize(horizontal: false, vertical: true)
-            .padding(12)
-            .background(.quaternary.opacity(0.35), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
             HStack(spacing: 8) {
-                Button("Copy", systemImage: "doc.on.doc") { state.copyResult() }
-                    .buttonStyle(.bordered)
-                Button("Replace Selection", systemImage: "arrow.triangle.2.circlepath") { state.replaceSelection() }
-                    .buttonStyle(.borderedProminent)
+                Spacer()
+                Button("Copy") { state.copyResult() }
+                    .buttonStyle(PillButtonStyle())
+                Button("Replace Selection") { state.replaceSelection() }
+                    .buttonStyle(PillButtonStyle(prominent: true))
                     .disabled(!state.canReplaceSelection)
             }
-            .buttonBorderShape(.capsule)
         }
     }
 
@@ -175,19 +184,6 @@ private struct AnyLabelStyle: LabelStyle {
     private let make: (Configuration) -> AnyView
     init<S: LabelStyle>(_ style: S) { make = { AnyView(style.makeBody(configuration: $0)) } }
     func makeBody(configuration: Configuration) -> some View { make(configuration) }
-}
-
-/// Behind-window blur, the same translucency Spotlight uses.
-private struct VisualEffectBackground: NSViewRepresentable {
-    func makeNSView(context: Context) -> NSVisualEffectView {
-        let view = NSVisualEffectView()
-        view.material = .underWindowBackground
-        view.blendingMode = .behindWindow
-        view.state = .active
-        return view
-    }
-
-    func updateNSView(_ nsView: NSVisualEffectView, context: Context) {}
 }
 
 /// Forces the thin, auto-hiding overlay scrollers (no white track) on every scroll view in the panel,

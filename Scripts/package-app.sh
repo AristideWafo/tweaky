@@ -21,6 +21,8 @@ install -m 755 "$binary_root/Tweaky" "$contents_root/MacOS/Tweaky"
 install -m 644 "$repository_root/Resources/Info.plist" "$contents_root/Info.plist"
 install -m 644 "$repository_root/Resources/AppIcon.png" "$contents_root/Resources/AppIcon.png"
 install -m 644 "$repository_root/Resources/MenuBarIcon.png" "$repository_root/Resources/MenuBarIcon@2x.png" "$contents_root/Resources/"
+install -d "$contents_root/Resources/Fonts"
+install -m 644 "$repository_root/Resources/Fonts/GoogleSans.ttf" "$repository_root/Resources/Fonts/OFL.txt" "$contents_root/Resources/Fonts/"
 
 # File-provider workspaces can attach Finder metadata that invalidates a code signature.
 xattr -cr "$app_root"

@@ -14,6 +14,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         terminateOtherInstances()
+        BrandFont.register()
         NSApp.setActivationPolicy(.accessory)
         installStatusItem()
         hotKeyService = HotKeyService { [weak self] in self?.openPanel() }
