@@ -20,101 +20,151 @@ private struct SettingsForm: View {
     @State private var screenRecordingGranted = PermissionManager.hasScreenRecordingAccess
 
     var body: some View {
-        Form {
-            Section("AI Provider") {
-                Picker("Provider", selection: $store.settings.provider) {
-                    ForEach(AIProviderID.allCases) { Text($0.displayName).tag($0) }
-                }
-                .onChange(of: store.settings.provider) { _, provider in
-                    store.settings.model = provider.defaultModel
-                    store.settings.baseURL = provider.defaultBaseURL
-                    status = ""
-                    refreshStoredKeyStatus()
-                }
-                LabeledContent("Model") {
-                    HStack {
-                        TextField("Model identifier", text: $store.settings.model)
-                        Button("Use Default") {
-                            store.settings.model = store.settings.provider.defaultModel
-                            status = "Default model restored."
-                        }
+        ScrollView {
+            VStack(alignment: .leading, spacing: 28) {
+                Text("Settings").font(.brand(30))
+                providerSection
+                section("Writing") {
+                    row("Translate to") {
+                        TextField("Language", text: $store.settings.targetLanguage).multilineTextAlignment(.trailing)
                     }
+                }
+                section("Keyboard") {
+                    row("Shortcut") {
+                        Picker("Shortcut", selection: $store.settings.shortcut) {
+                            ForEach(GlobalShortcut.allCases) { Text($0.displayName).tag($0) }
+                        }
+                        .labelsHidden()
+                        .fixedSize()
+                    }
+                }
+                section("Permissions") {
+                    permissionRow("Accessibility", granted: accessibilityGranted) {
+                        accessibilityGranted = PermissionManager.requestAccessibilityAccess()
+                    }
+                    Divider()
+                    permissionRow("Screen Recording", granted: screenRecordingGranted) {
+                        screenRecordingGranted = PermissionManager.requestScreenRecordingAccess()
+                    }
+                }
+                Text("Your API key is stored in the macOS Keychain. Text is sent only after you trigger an action.")
+                    .font(.brand(12))
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.horizontal, 32)
+            .padding(.top, 44)
+            .padding(.bottom, 32)
+        }
+        .scrollIndicators(.never)
+        .textFieldStyle(.plain)
+        .font(.brand(14))
+        .background(BrandSurface().ignoresSafeArea())
+        .onAppear { refreshStoredKeyStatus() }
+    }
+
+    private var providerSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            section("AI provider") {
+                row("Provider") {
+                    Picker("Provider", selection: $store.settings.provider) {
+                        ForEach(AIProviderID.allCases) { Text($0.displayName).tag($0) }
+                    }
+                    .labelsHidden()
+                    .fixedSize()
+                    .onChange(of: store.settings.provider) { _, provider in
+                        store.settings.model = provider.defaultModel
+                        store.settings.baseURL = provider.defaultBaseURL
+                        status = ""
+                        refreshStoredKeyStatus()
+                    }
+                }
+                Divider()
+                row("Model") {
+                    TextField("Model identifier", text: $store.settings.model).multilineTextAlignment(.trailing)
+                    Button("Default") {
+                        store.settings.model = store.settings.provider.defaultModel
+                        status = "Default model restored."
+                    }
+                    .buttonStyle(.borderless)
+                    .foregroundStyle(.secondary)
                 }
                 if store.settings.provider == .openAICompatible {
-                    LabeledContent("Base URL") {
-                        TextField("https://…", text: $store.settings.baseURL)
+                    Divider()
+                    row("Base URL") {
+                        TextField("https://…", text: $store.settings.baseURL).multilineTextAlignment(.trailing)
                     }
                 }
-                LabeledContent("API key") {
-                    HStack {
-                        let prompt = hasStoredAPIKey ? "Stored in Keychain" : "Paste provider key"
+                Divider()
+                row("API key") {
+                    let prompt = hasStoredAPIKey ? "Saved in Keychain" : "Paste provider key"
+                    Group {
                         if isKeyVisible {
                             TextField(prompt, text: $apiKey)
                         } else {
                             SecureField(prompt, text: $apiKey)
                         }
-                        Button(isKeyVisible ? "Hide" : "Show", systemImage: isKeyVisible ? "eye.slash" : "eye") {
-                            isKeyVisible.toggle()
-                        }
-                        .labelStyle(.iconOnly)
-                        .buttonStyle(.plain)
-                        .foregroundStyle(.secondary)
                     }
+                    .multilineTextAlignment(.trailing)
+                    Button(isKeyVisible ? "Hide" : "Show", systemImage: isKeyVisible ? "eye.slash" : "eye") {
+                        isKeyVisible.toggle()
+                    }
+                    .labelStyle(.iconOnly)
+                    .buttonStyle(.borderless)
+                    .foregroundStyle(.secondary)
                 }
-                if hasStoredAPIKey {
-                    Label("Saved in Keychain", systemImage: "lock.fill")
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
-                }
-                HStack {
+                Divider()
+                HStack(spacing: 8) {
                     Button("Save") { saveKey() }
-                        .buttonStyle(.borderedProminent)
+                        .buttonStyle(PillButtonStyle(prominent: true))
                         .disabled(apiKey.isEmpty)
                     Button("Test Connection") { testConnection() }
                         .disabled(isTesting)
-                    Button("Remove", role: .destructive) { removeKey() }
                     Spacer()
                     if isTesting { ProgressView().controlSize(.small) }
+                    Button("Remove Key") { removeKey() }
+                        .disabled(!hasStoredAPIKey)
                 }
-                if !status.isEmpty {
-                    Label(status, systemImage: statusIsError ? "exclamationmark.triangle.fill" : "checkmark.circle.fill")
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
-                        .symbolRenderingMode(.multicolor)
-                }
+                .buttonStyle(PillButtonStyle())
+                .padding(.vertical, 12)
             }
-            Section("Writing") {
-                TextField("Default translation language", text: $store.settings.targetLanguage)
-            }
-            Section("Keyboard") {
-                Picker("Shortcut", selection: $store.settings.shortcut) {
-                    ForEach(GlobalShortcut.allCases) { Text($0.displayName).tag($0) }
-                }
-            }
-            Section("Permissions") {
-                permissionRow("Accessibility", granted: accessibilityGranted) {
-                    accessibilityGranted = PermissionManager.requestAccessibilityAccess()
-                }
-                permissionRow("Screen Recording", granted: screenRecordingGranted) {
-                    screenRecordingGranted = PermissionManager.requestScreenRecordingAccess()
-                }
-            }
-            Section("Privacy") {
-                Text("Your API key is stored in the macOS Keychain. Text is sent only after you trigger an action.")
-                    .font(.callout).foregroundStyle(.secondary)
+            if !status.isEmpty {
+                Label(status, systemImage: statusIsError ? "exclamationmark.triangle.fill" : "checkmark.circle.fill")
+                    .font(.brand(12))
+                    .foregroundStyle(statusIsError ? Color.red : Color.secondary)
+                    .padding(.horizontal, 4)
             }
         }
-        .formStyle(.grouped)
-        .font(.brand(13))
-        .onAppear { refreshStoredKeyStatus() }
+    }
+
+    /// A titled card with a hairline border; rows inside are separated by `Divider()`.
+    private func section<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(title).font(.brand(13, weight: .medium)).foregroundStyle(.secondary).padding(.horizontal, 4)
+            VStack(alignment: .leading, spacing: 0, content: content)
+                .padding(.horizontal, 16)
+                .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Color.primary.opacity(0.1)))
+        }
+    }
+
+    private func row<Content: View>(_ label: String, @ViewBuilder content: () -> Content) -> some View {
+        HStack(spacing: 10) {
+            Text(label)
+            Spacer(minLength: 24)
+            content()
+        }
+        .frame(minHeight: 28)
+        .padding(.vertical, 10)
     }
 
     private func permissionRow(_ name: String, granted: Bool, request: @escaping () -> Void) -> some View {
-        HStack {
-            Label(name, systemImage: granted ? "checkmark.circle.fill" : "exclamationmark.circle")
-                .foregroundStyle(granted ? .green : .secondary)
-            Spacer()
-            if !granted { Button("Grant Access", action: request) }
+        row(name) {
+            if granted {
+                Label("Granted", systemImage: "checkmark.circle.fill")
+                    .font(.brand(13))
+                    .foregroundStyle(.secondary)
+            } else {
+                Button("Grant Access", action: request).buttonStyle(PillButtonStyle())
+            }
         }
     }
 

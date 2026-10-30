@@ -34,3 +34,25 @@ struct PillButtonStyle: ButtonStyle {
             .opacity(isEnabled ? (configuration.isPressed ? 0.7 : 1) : 0.35)
     }
 }
+
+/// Light translucency: behind-window blur under a mostly opaque surface, so the UI stays calm and readable.
+struct BrandSurface: View {
+    var body: some View {
+        ZStack {
+            BehindWindowBlur()
+            Color(nsColor: .textBackgroundColor).opacity(0.78)
+        }
+    }
+}
+
+private struct BehindWindowBlur: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSVisualEffectView {
+        let view = NSVisualEffectView()
+        view.material = .popover
+        view.blendingMode = .behindWindow
+        view.state = .active
+        return view
+    }
+
+    func updateNSView(_ nsView: NSVisualEffectView, context: Context) {}
+}

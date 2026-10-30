@@ -28,7 +28,7 @@ struct TweakyPanel: View {
         .padding(20)
         .frame(width: 560)
         .fixedSize(horizontal: false, vertical: true)
-        .background(Color(nsColor: .textBackgroundColor), in: shape)
+        .background(BrandSurface().clipShape(shape))
         .overlay(shape.strokeBorder(Color.primary.opacity(0.08)))
         .background(OverlayScrollers(trigger: state.inputText.count + state.resultText.count))
         .onAppear { isInputFocused = true }

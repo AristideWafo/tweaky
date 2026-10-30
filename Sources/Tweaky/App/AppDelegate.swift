@@ -45,8 +45,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let view = SettingsView().environmentObject(state)
         let window = NSWindow(contentViewController: NSHostingController(rootView: view))
         window.title = "Tweaky Settings"
-        window.styleMask = [.titled, .closable, .miniaturizable]
-        window.setContentSize(NSSize(width: 600, height: 590))
+        window.styleMask = [.titled, .closable, .miniaturizable, .fullSizeContentView]
+        window.titleVisibility = .hidden
+        window.titlebarAppearsTransparent = true
+        window.isMovableByWindowBackground = true
+        window.isOpaque = false
+        window.backgroundColor = .clear
+        window.setContentSize(NSSize(width: 540, height: 640))
         window.center()
         window.isReleasedWhenClosed = false
         settingsWindowController = NSWindowController(window: window)
