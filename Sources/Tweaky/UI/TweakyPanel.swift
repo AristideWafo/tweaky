@@ -21,7 +21,7 @@ struct TweakyPanel: View {
                 Divider()
                 result.transition(.opacity)
             }
-            if hasFooter { footer }
+            footer
         }
         .animation(.easeOut(duration: 0.2), value: state.resultText.isEmpty)
         .font(.brand(14))
@@ -127,10 +127,7 @@ struct TweakyPanel: View {
         .fixedSize(horizontal: true, vertical: false)
     }
 
-    private var hasFooter: Bool {
-        state.isProcessing || state.errorMessage != nil || state.statusMessage != nil
-    }
-
+    /// Status on the left, the keyboard flow on the right (matches the landing page mock).
     private var footer: some View {
         HStack(spacing: 6) {
             if state.isProcessing {
@@ -143,6 +140,13 @@ struct TweakyPanel: View {
             } else if let status = state.statusMessage {
                 Text(status)
             }
+            Spacer(minLength: 12)
+            Text("⌘↩ Correct · ⌘↩ Replace · ⇧⌘C Copy")
+                .font(.system(size: 11, design: .monospaced))
+                .foregroundStyle(.tertiary)
+                .lineLimit(1)
+                .layoutPriority(-1)
+                .accessibilityLabel("Command Return to correct, then to replace. Shift Command C to copy.")
         }
         .font(.brand(12))
         .foregroundStyle(.secondary)
