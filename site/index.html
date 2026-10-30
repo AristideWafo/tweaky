@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tweaky — Corrigez et traduisez votre texte en place sur Mac</title>
+  <meta
+    name="description"
+    content="Sélectionnez du texte dans n'importe quelle application sur votre Mac, appuyez sur ⌥ Space ou ⌥ ⇧ Space, et obtenez-le corrigé ou traduit directement en place."
+  />
+  <meta property="og:title" content="Tweaky — Assistant d'écriture natif pour macOS" />
+  <meta
+    property="og:description"
+    content="Sélectionnez du texte partout sur Mac, appuyez sur un raccourci et corrigez ou traduisez-le en place en ~1 seconde."
+  />
+  <meta property="og:image" content="./assets/tweaky-panel-capture.png" />
+  <link rel="icon" type="image/svg+xml" href="./assets/tweaky-app-icon.svg" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+
+  <!-- FLOATING PILL NAVBAR -->
+  <div class="navbar-wrapper">
+    <nav class="navbar" aria-label="Navigation principale">
+      <a href="#" class="nav-brand">
+        <img src="./assets/tweaky-app-icon.svg" alt="Logo Tweaky" />
+        <span>Tweaky</span>
+        <span class="nav-version-tag">v0.2 · macOS 15+</span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="#demo">Démo interactive</a></li>
+        <li>
+          <a href="#nouveautes">
+            Nouveautés
+            <span class="badge-new">PR</span>
+          </a>
+        </li>
+        <li><a href="#fonctionnalites">Fonctionnalités</a></li>
+        <li><a href="#confidentialite">Confidentialité</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <a
+          href="https://github.com/AristideWafo/tweaky"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn-pill btn-pill-sm"
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 1.27a11 11 0 00-3.48 21.46c.55.09.73-.28.73-.55v-1.84c-3.03.64-3.67-1.46-3.67-1.46-.55-1.29-1.28-1.65-1.28-1.65-.92-.65.1-.65.1-.65 1.1 0 1.73 1.1 1.73 1.1.92 1.65 2.57 1.2 3.21.92a2.16 2.16 0 01.64-1.47c-2.47-.27-5.04-1.19-5.04-5.5 0-1.1.46-2.1 1.2-2.84a3.76 3.76 0 010-2.93s.91-.28 3.11 1.1c1.8-.49 3.7-.49 5.5 0 2.1-1.38 3.02-1.1 3.02-1.1a3.76 3.76 0 010 2.93c.83.74 1.2 1.74 1.2 2.94 0 4.21-2.57 5.13-5.04 5.4.45.37.82.92.82 2.02v3.03c0 .27.18.64.73.55A11 11 0 0012 1.27" />
+          </svg>
+          GitHub
+        </a>
+        <a href="#waitlist" class="btn-pill btn-pill-dark btn-pill-sm">
+          Rejoindre la liste d'attente
+        </a>
+      </div>
+    </nav>
+  </div>
+
+  <!-- HERO SECTION -->
+  <header class="hero">
+    <!-- Subtle Top Grid (Motion Reference) -->
+    <div class="hero-grid-bg" aria-hidden="true"></div>
+
+    <!-- Concentric Orbital Rings (Deflexai Reference in Pure White) -->
+    <svg class="hero-orbits" viewBox="0 0 1340 1340" aria-hidden="true">
+      <circle class="orbit-ring" cx="670" cy="670" r="290" />
+      <circle class="orbit-ring" cx="670" cy="670" r="415" />
+      <circle class="orbit-ring" cx="670" cy="670" r="540" />
+      <circle class="orbit-ring" cx="670" cy="670" r="660" />
+      <!-- Animated Indigo Accent Arcs along the orbits -->
+      <circle class="orbit-arc orbit-arc-1" cx="670" cy="670" r="290" />
+      <circle class="orbit-arc orbit-arc-2" cx="670" cy="670" r="415" />
+      <circle class="orbit-arc orbit-arc-3" cx="670" cy="670" r="540" />
+    </svg>
+
+    <!-- Floating App Bubbles along the Orbital Rings (Click to load app context!) -->
+    <div class="orbit-nodes" aria-label="Applications compatibles">
+      <!-- Left Orbit Nodes -->
+      <button type="button" class="orbit-node node-slack active" data-app="Slack" data-sample="ca fais quand mm déjà 3 de temps que tu crées la branche la" data-corrected="ça fait quand même déjà 3 h que tu la crées, la branche" data-translated="it's honestly been 3 hours already that you've been creating that branch">
+        <span class="orbit-node-tooltip">Slack · Message d'équipe</span>
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M6 15a2 2 0 1 1-2-2h2v2zm1 0a2 2 0 1 1 4 0v5a2 2 0 1 1-4 0v-5z" fill="#E01E5A"/>
+          <path d="M9 6a2 2 0 1 1 2-2v2H9zm0 1a2 2 0 1 1 0 4H4a2 2 0 1 1 0-4h5z" fill="#36C5F0"/>
+          <path d="M18 9a2 2 0 1 1 2 2h-2V9zm-1 0a2 2 0 1 1-4 0V4a2 2 0 1 1 4 0v5z" fill="#2EB67D"/>
+          <path d="M15 18a2 2 0 1 1-2 2v-2h2zm0-1a2 2 0 1 1 0-4h5a2 2 0 1 1 0 4h-5z" fill="#ECB22E"/>
+        </svg>
+      </button>
+
+      <button type="button" class="orbit-node node-gmail" data-app="Gmail" data-sample="Bonjour Marc, je vous envoi le compte rendu de la reunion d'hier des que j'ai finis de verifier les chiffres." data-corrected="Bonjour Marc, je vous envoie le compte-rendu de la réunion d'hier dès que j'ai fini de vérifier les chiffres." data-translated="Hi Marc, I will send you yesterday's meeting notes as soon as I finish checking the numbers.">
+        <span class="orbit-node-tooltip">Gmail · E-mail client</span>
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M3 6.5A2.5 2.5 0 0 1 5.5 4h13A2.5 2.5 0 0 1 21 6.5v11a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5v-11z" stroke="#EA4335" stroke-width="1.8"/>
+          <path d="M4 6l8 6 8-6" stroke="#EA4335" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <button type="button" class="orbit-node node-notes" data-app="Apple Notes" data-sample="Penser a mettre a jour les clé API dans le trousseau mac avant de builder la release notariser." data-corrected="Penser à mettre à jour les clés API dans le Trousseau du Mac avant de générer la version notarisée." data-translated="Remember to update the API keys in the Mac Keychain before building the notarized release.">
+        <span class="orbit-node-tooltip">Notes · Brouillon rapide</span>
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="4" y="3" width="16" height="18" rx="3" stroke="#F59E0B" stroke-width="1.8"/>
+          <path d="M4 8h16M8 12h8M8 16h5" stroke="#F59E0B" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <button type="button" class="orbit-node node-whatsapp" data-app="WhatsApp" data-sample="Dis moi si t'es dispo demain matin pr faire un point rapide sur la landing page" data-corrected="Dis-moi si tu es disponible demain matin pour faire un point rapide sur la landing page." data-translated="Let me know if you're free tomorrow morning for a quick sync on the landing page.">
+        <span class="orbit-node-tooltip">WhatsApp · Message instantané</span>
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 21a9 9 0 1 0-7.8-4.5L3 21l4.6-1.2A9 9 0 0 0 12 21z" stroke="#22C55E" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="M9.5 9.5c.3 1.8 2.2 3.7 4 4l1.3-.9c.3-.2.7-.2 1 0l1.2.8c.4.3.4.9 0 1.3-.8.8-2 1.1-3.2.8-2.8-.7-5.1-3-5.8-5.8-.3-1.2 0-2.4.8-3.2.4-.4 1-.4 1.3 0l.8 1.2c.2.3.2.7 0 1l-.4.8z" fill="#22C55E"/>
+        </svg>
+      </button>
+
+      <!-- Right Orbit Nodes -->
+      <button type="button" class="orbit-node node-mail" data-app="Apple Mail" data-sample="Merci pour votre retour rapide. Nous avons bien pris en compte vos remarques et préparons le correctif." data-corrected="Merci pour votre retour rapide. Nous avons bien pris en compte vos remarques et préparons le correctif." data-translated="Thank you for your prompt feedback. We have taken your comments into account and are preparing the fix.">
+        <span class="orbit-node-tooltip">Mail · Traduction instantanée</span>
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="3" y="5" width="18" height="14" rx="3" stroke="#0EA5E9" stroke-width="1.8"/>
+          <path d="M4 7l8 5.5L20 7" stroke="#0EA5E9" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <button type="button" class="orbit-node node-notion" data-app="Notion" data-sample="L'architecture de Tweaky repose sur Swift 6 sans aucune dependance externe ni serveur intermediaire." data-corrected="L'architecture de Tweaky repose sur Swift 6, sans aucune dépendance externe ni serveur intermédiaire." data-translated="Tweaky's architecture is built on Swift 6 with zero external dependencies and no intermediate server.">
+        <span class="orbit-node-tooltip">Notion · Documentation</span>
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="4" y="4" width="16" height="16" rx="2.5" stroke="#1F1F1F" stroke-width="1.8"/>
+          <path d="M8.5 16V8l7 8V8" stroke="#1F1F1F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <button type="button" class="orbit-node node-github" data-app="GitHub PR" data-sample="Cette PR ajoute un second raccourci global pour corriger la selection directement sur place sans ouvrir le panneau." data-corrected="Cette PR ajoute un second raccourci global pour corriger la sélection directement sur place, sans ouvrir le panneau." data-translated="This PR adds a second global shortcut to correct the selection directly in place without opening the panel.">
+        <span class="orbit-node-tooltip">GitHub · Revue de PR</span>
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="6" cy="6" r="2.2" stroke="#4F3FE6" stroke-width="1.8"/>
+          <circle cx="6" cy="18" r="2.2" stroke="#4F3FE6" stroke-width="1.8"/>
+          <circle cx="18" cy="18" r="2.2" stroke="#4F3FE6" stroke-width="1.8"/>
+          <path d="M6 8.2v7.6M18 15.8V9a3 3 0 0 0-3-3h-4" stroke="#4F3FE6" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <button type="button" class="orbit-node node-safari" data-app="Xcode / Éditeur" data-sample="// Verifie que le resultat est plausible avant de remplacer le texte selectionne par l'utilisateur" data-corrected="// Vérifie que le résultat est plausible avant de remplacer le texte sélectionné par l'utilisateur." data-translated="// Checks that the result is plausible before replacing the text selected by the user.">
+        <span class="orbit-node-tooltip">Xcode · Commentaire de code</span>
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M8 9l-4 3 4 3M16 9l4 3-4 3M13.5 6l-3 12" stroke="#1F1F1F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Hero Foreground Content -->
+    <div class="hero-content">
+      <div class="hero-meta-strip">
+        <span class="hero-meta-item">
+          <img src="./assets/tweaky-symbol-indigo.svg" alt="" />
+          <strong>Natif Swift 6</strong>
+        </span>
+        <span class="hero-meta-sep"></span>
+        <span class="hero-meta-item">Streaming ~1 s</span>
+        <span class="hero-meta-sep"></span>
+        <span class="hero-meta-item">Clés dans le Trousseau macOS</span>
+      </div>
+
+      <h1 class="hero-title">
+        Corrigez
+        <span class="inline-badge inline-badge-symbol" title="Tweaky (~)">
+          <img src="./assets/tweaky-symbol-white.svg" alt="~" />
+        </span>
+        et traduisez<br />
+        votre texte
+        <span class="inline-badge inline-badge-key">⌥ Space</span>
+        en place<span class="accent-dot">.</span>
+      </h1>
+
+      <p class="hero-subtitle">
+        Sélectionnez du texte dans <strong>Gmail, Slack, WhatsApp ou Notes</strong>. Appuyez sur
+        <strong>Option-Espace</strong> pour ouvrir le panneau ou sur <strong>Option-Maj-Espace</strong> pour
+        corriger directement sur place — avec le modèle IA de votre choix.
+      </p>
+
+      <!-- Waitlist Bar in Hero -->
+      <div class="hero-waitlist">
+        <form id="hero-waitlist-form" class="waitlist-bar" novalidate>
+          <input
+            type="email"
+            id="hero-email"
+            name="email"
+            placeholder="Entrez votre adresse e-mail pour tester la bêta macOS…"
+            required
+            autocomplete="email"
+          />
+          <button type="submit" class="btn-pill btn-pill-indigo">
+            Rejoindre la liste d'attente
+          </button>
+        </form>
+        <div id="hero-waitlist-feedback" class="waitlist-feedback" role="status" aria-live="polite"></div>
+      </div>
+
+      <div class="hero-secondary-actions">
+        <span>Accès anticipé gratuit · macOS 15+</span>
+        <span>·</span>
+        <button type="button" id="replay-demo-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M3 12a9 9 0 1 0 3-6.7L3 8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M3 3v5h5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Rejouer l'animation
+        </button>
+        <span>·</span>
+        <button type="button" id="toggle-real-shot-btn">
+          Voir le tutoriel clippé (Asset macOS)
+        </button>
+      </div>
+    </div>
+
+    <!-- CENTRAL ANIMATED TWEAKY PANEL SHOWCASE -->
+    <div id="demo" class="stage-wrapper">
+      <!-- Scenario Selector Pills -->
+      <div style="text-align: center;">
+        <div class="scenario-tabs" role="tablist" aria-label="Scénarios de démonstration">
+          <button type="button" class="scenario-tab active" data-scenario="screenshot" role="tab" aria-selected="true">
+            <span>Tutoriel clippé</span>
+            <span class="tab-kbd">4 étapes</span>
+          </button>
+          <button type="button" class="scenario-tab" data-scenario="correct" role="tab" aria-selected="false">
+            <span>Simulateur interactif</span>
+            <span class="tab-kbd">⌥ Space</span>
+          </button>
+          <button type="button" class="scenario-tab" data-scenario="instant" role="tab" aria-selected="false">
+            <span>Correction en place</span>
+            <span class="tab-kbd">⌥ ⇧ Space</span>
+          </button>
+          <button type="button" class="scenario-tab" data-scenario="translate" role="tab" aria-selected="false">
+            <span>Traduction</span>
+            <span class="tab-kbd">⌘T</span>
+          </button>
+          <button type="button" class="scenario-tab" data-scenario="ocr" role="tab" aria-selected="false">
+            <span>Read Screen (OCR)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Simulated macOS Menu Bar + Active App Context -->
+      <div id="sim-stage">
+        <div class="macos-menubar-bar">
+          <div class="menubar-left">
+            <span class="menubar-apple"></span>
+            <span id="sim-app-name" class="menubar-app-name">Slack</span>
+            <span>Fichier</span>
+            <span>Édition</span>
+          </div>
+          <div class="menubar-right">
+            <span id="sim-shortcut-step" class="menubar-key-step">⌥ Space → Panneau</span>
+            <span id="sim-menubar-icon" class="menubar-tweaky-glyph" title="Icône Tweaky dans la barre des menus">
+              <img src="./assets/tweaky-menubar.svg" alt="Tweaky menu bar icon" />
+            </span>
+          </div>
+        </div>
+
+        <!-- Simulated Source Text Field in the Frontmost App -->
+        <div class="source-app-field" title="Champ de texte de l'application active">
+          <div class="source-app-field-left">
+            <span id="sim-source-badge" class="source-app-badge">Slack · Sélection active</span>
+            <span id="sim-source-text" class="source-selection-text">
+              ca fais quand mm déjà 3 de temps que tu crées la branche la
+            </span>
+          </div>
+          <span id="sim-source-status" style="font-size: 11.5px; color: var(--ink-tertiary); white-space: nowrap;">
+            Prêt
+          </span>
+        </div>
+
+        <!-- THE REPLICA OF TweakyPanel.swift (Matches Image 3 Asset 1:1) -->
+        <div id="tweaky-live-panel" class="tweaky-panel">
+          <!-- Header -->
+          <div class="tp-header">
+            <img src="./assets/tweaky-app-icon.svg" alt="Tweaky" class="tp-app-icon" />
+            <span class="tp-title">Tweaky</span>
+            <span id="tp-shortcut-pill" class="tp-shortcut-badge">⌥ Space</span>
+            <span class="tp-spacer"></span>
+            <span id="tp-source-label" class="tp-source-label">Selection</span>
+            <a href="#confidentialite" class="tp-icon-btn" title="Réglages (Settings)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+              </svg>
+            </a>
+            <button type="button" id="tp-reset-btn" class="tp-icon-btn" title="Effacer / Fermer (Esc)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                <path d="M18 6L6 18M6 6l12 12" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Input Editor -->
+          <div class="tp-editor-box">
+            <textarea
+              id="tp-input"
+              class="tp-textarea"
+              rows="2"
+              aria-label="Texte à traiter"
+              placeholder="Collez ou saisissez du texte…"
+            >ca fais quand mm déjà 3 de temps que tu crées la branche la</textarea>
+          </div>
+
+          <!-- Action Bar -->
+          <div class="tp-action-bar">
+            <button type="button" id="tp-btn-correct" class="tp-btn tp-btn-prominent" title="Corriger (⌘↩)">
+              Correct
+            </button>
+            <button type="button" id="tp-btn-translate" class="tp-btn" title="Traduire (⌘T)">
+              Translate
+            </button>
+            <span class="tp-spacer"></span>
+            <button type="button" id="tp-btn-paste" class="tp-btn" title="Coller depuis le presse-papiers">
+              Paste
+            </button>
+            <button type="button" id="tp-btn-ocr" class="tp-btn" title="Lire le texte à l'écran (OCR local)">
+              Read Screen
+            </button>
+          </div>
+
+          <!-- Result Section -->
+          <div id="tp-result-container" class="tp-result-area">
+            <div class="tp-divider"></div>
+            <div class="tp-result-label">Result</div>
+            <div id="tp-result-text" class="tp-result-text">
+              ça fait quand même déjà 3 h que tu la crées, la branche
+            </div>
+            <div class="tp-result-actions">
+              <button type="button" id="tp-btn-copy" class="tp-btn" title="Copier (⇧⌘C)">
+                Copy
+              </button>
+              <button type="button" id="tp-btn-replace" class="tp-btn tp-btn-prominent" title="Remplacer la sélection (⌘↩)">
+                Replace Selection
+              </button>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="tp-footer">
+            <div class="tp-footer-left">
+              <span id="tp-spinner" class="tp-spinner"></span>
+              <span id="tp-status-text">Done.</span>
+            </div>
+            <span id="tp-kbd-flow-hint" class="tp-kbd-hint">⌘↩ Corriger · ⌘↩ Remplacer · ⇧⌘C Copier</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Clipped Asset Step-by-Step Animated Tutorial (Uses site/assets/tweaky-panel-clean.png) -->
+      <div id="real-capture-view" class="real-capture-box visible">
+        <!-- 4 Step Selector Pills -->
+        <div class="tutorial-step-bar" role="tablist" aria-label="Étapes du tutoriel clippé">
+          <button type="button" class="tut-step-btn active" data-tut-step="1">
+            <span class="tut-step-num">01 · ⌥ Space</span>
+            <span class="tut-step-title">Capture sélection</span>
+            <div class="tut-progress-track"><div class="tut-progress-fill"></div></div>
+          </button>
+          <button type="button" class="tut-step-btn" data-tut-step="2">
+            <span class="tut-step-num">02 · ⌘↩</span>
+            <span class="tut-step-title">Action Correct</span>
+            <div class="tut-progress-track"><div class="tut-progress-fill"></div></div>
+          </button>
+          <button type="button" class="tut-step-btn" data-tut-step="3">
+            <span class="tut-step-num">03 · ~1 s</span>
+            <span class="tut-step-title">Flux en continu</span>
+            <div class="tut-progress-track"><div class="tut-progress-fill"></div></div>
+          </button>
+          <button type="button" class="tut-step-btn" data-tut-step="4">
+            <span class="tut-step-num">04 · ⌘↩ / ⇧⌘C</span>
+            <span class="tut-step-title">Remplacer en place</span>
+            <div class="tut-progress-track"><div class="tut-progress-fill"></div></div>
+          </button>
+        </div>
+
+        <!-- Clipped Screenshot Stage -->
+        <div class="clipped-asset-stage">
+          <div id="clipped-asset-viewport" class="clipped-asset-viewport">
+            <img
+              id="clipped-asset-img"
+              src="./assets/tweaky-panel-clean.png"
+              alt="Tutoriel animé du panneau Tweaky sur macOS"
+              class="clipped-asset-img clip-step-1"
+            />
+            <!-- Dynamic Spotlight Ring over the Active Region of the Asset -->
+            <div
+              id="asset-spotlight-ring"
+              class="asset-spotlight-ring"
+              data-badge="1. ⌥ Space — Texte capturé"
+              style="left: 3.4%; top: 15.8%; width: 93.2%; height: 24.5%;"
+            ></div>
+            <!-- Animated Pointer Cursor -->
+            <svg
+              id="asset-cursor"
+              class="asset-cursor"
+              viewBox="0 0 24 24"
+              fill="none"
+              style="left: 28%; top: 11%;"
+              aria-hidden="true"
+            >
+              <path
+                d="M5.5 3.5L19 10.5L12.5 13L10 19.5L5.5 3.5Z"
+                fill="#1F1F1F"
+                stroke="#FFFFFF"
+                stroke-width="1.8"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
+        </div>
+
+        <div class="real-capture-caption">
+          <div class="tut-caption-left">
+            <span id="tut-caption-badge" class="tut-caption-badge">Étape 1 / 4</span>
+            <span id="tut-caption-text">
+              Sélectionnez du texte et appuyez sur <strong>⌥ Space</strong> : le panneau s'ouvre pré-rempli.
+            </span>
+          </div>
+          <button type="button" id="back-to-interactive-btn" class="btn-pill btn-pill-sm">
+            Tester le simulateur interactif →
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM ECOSYSTEM & PROVIDERS STRIP (Deflexai Reference Layout) -->
+    <div class="ecosystem-strip">
+      <p class="ecosystem-caption">
+        COMPATIBLE AVEC VOS FOURNISSEURS D'IA ET TECHNOLOGIES NATIVES MACOS
+      </p>
+      <div class="ecosystem-logos">
+        <span class="eco-item">OpenAI <code>gpt-5-mini</code></span>
+        <span class="eco-item">Anthropic <code>claude-sonnet-4-5</code></span>
+        <span class="eco-item">Google Gemini <code>gemini-3.5-flash</code></span>
+        <span class="eco-item">OpenAI-Compatible <code>Localhost / Ollama</code></span>
+        <span class="eco-item">macOS Accessibility</span>
+        <span class="eco-item">ScreenCaptureKit &amp; Vision OCR</span>
+        <span class="eco-item">Trousseau macOS</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- SECTION 1: NOUVEAUTÉS & PR EN COURS (feat/instant-tweak) -->
+  <section id="nouveautes" class="section">
+    <div class="section-header">
+      <span class="section-eyebrow">Branche en cours · feat/instant-tweak</span>
+      <h2 class="section-title">Conçu pour la vitesse pure, sans quitter votre clavier.</h2>
+      <p class="section-desc">
+        Les dernières évolutions de Tweaky éliminent toute friction entre votre pensée et votre texte :
+        correction en place sans fenêtre, streaming SSE temps réel et flux clavier à une touche.
+      </p>
+    </div>
+
+    <div class="pr-grid">
+      <!-- PR Feature 1: Instant Tweak -->
+      <article class="pr-card">
+        <div class="pr-card-top">
+          <div class="pr-card-badges">
+            <span class="kbd-badge">⌥ ⇧ Space</span>
+            <span class="tag-outline">OutputGuard</span>
+          </div>
+          <h3>Correction en place sans ouvrir le panneau</h3>
+          <p>
+            Sélectionnez du texte et appuyez sur <strong>Option-Maj-Espace</strong> : Tweaky corrige directement
+            votre sélection pendant que l'icône de la barre des menus pulse discrètement. Si le résultat semble
+            inhabituel, bavard, ou si vous avez changé de champ entre-temps, <code>OutputGuard</code> le copie dans
+            le presse-papiers avec une notification au lieu d'écraser votre texte à l'aveugle.
+          </p>
+        </div>
+        <div class="pr-mini-demo">
+          <div class="pr-flow-steps">
+            <span class="pr-flow-step">1. Sélection</span>
+            <span class="pr-flow-arrow">→</span>
+            <span class="pr-flow-step"><strong style="color: var(--indigo);">⌥ ⇧ Space</strong></span>
+            <span class="pr-flow-arrow">→</span>
+            <span class="pr-flow-step">Icône ~ pulse</span>
+            <span class="pr-flow-arrow">→</span>
+            <span class="pr-flow-step">Remplacé sur place</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- PR Feature 2: Keyboard Flow -->
+      <article class="pr-card">
+        <div class="pr-card-top">
+          <div class="pr-card-badges">
+            <span class="kbd-badge">⌘↩ → ⌘↩</span>
+            <span class="kbd-badge">⇧⌘C</span>
+            <span class="kbd-badge">⌘T</span>
+          </div>
+          <h3>Flux 100 % clavier de bout en bout</h3>
+          <p>
+            Dans le panneau, <strong>⌘↩</strong> lance la correction. Dès que la réponse est prête, ce même
+            raccourci <strong>⌘↩</strong> bascule automatiquement sur <em>Replace Selection</em> pour remplacer
+            le texte d'origine. Utilisez <strong>⌘T</strong> pour traduire, <strong>⇧⌘C</strong> pour copier
+            le résultat, ou <strong>Échap</strong> pour fermer et rendre le focus.
+          </p>
+        </div>
+        <div class="pr-mini-demo">
+          <div class="pr-flow-steps">
+            <span class="pr-flow-step"><strong style="color: var(--indigo);">⌥ Space</strong> Ouvrir</span>
+            <span class="pr-flow-arrow">→</span>
+            <span class="pr-flow-step"><strong style="color: var(--indigo);">⌘↩</strong> Corriger</span>
+            <span class="pr-flow-arrow">→</span>
+            <span class="pr-flow-step"><strong style="color: var(--indigo);">⌘↩</strong> Remplacer</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- PR Feature 3: Streaming SSE & Minimal Thinking -->
+      <article class="pr-card">
+        <div class="pr-card-top">
+          <div class="pr-card-badges">
+            <span class="kbd-badge">SSE Streaming</span>
+            <span class="tag-outline">~1 s sur Gemini 3.5 Flash</span>
+          </div>
+          <h3>Réponses en continu &amp; raisonnement minimal</h3>
+          <p>
+            Les corrections et traductions s'affichent en temps réel au fil de la génération sur OpenAI Responses,
+            Anthropic Messages, Google Gemini (<code>streamGenerateContent?alt=sse</code>) et les serveurs compatibles.
+            Tweaky configure automatiquement un budget de réflexion <code>minimal</code> pour répondre en environ une seconde.
+          </p>
+        </div>
+        <div class="pr-mini-demo">
+          <div class="pr-flow-steps">
+            <span class="pr-flow-step">thinkingLevel: "minimal"</span>
+            <span class="pr-flow-arrow">→</span>
+            <span class="pr-flow-step">Flux SSE mot à mot</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- PR Feature 4: Direct Accessibility Replace & Clipboard Restoration -->
+      <article class="pr-card">
+        <div class="pr-card-top">
+          <div class="pr-card-badges">
+            <span class="kbd-badge">kAXSelectedTextAttribute</span>
+            <span class="tag-outline">Presse-papiers préservé</span>
+          </div>
+          <h3>Remplacement natif Accessibility &amp; presse-papiers intact</h3>
+          <p>
+            Tweaky injecte le texte corrigé directement dans le champ d'origine via l'API d'accessibilité macOS
+            lorsque l'application l'autorise, en conservant les espaces et sauts de ligne exacts de votre sélection.
+            Pour les applications Electron ou navigateurs, il colle le résultat puis restaure intégralement votre presse-papiers.
+          </p>
+        </div>
+        <div class="pr-mini-demo">
+          <div class="pr-flow-steps">
+            <span class="pr-flow-step">Écriture AX directe</span>
+            <span class="pr-flow-arrow">ou</span>
+            <span class="pr-flow-step">Collage + Restauration NSPasteboard</span>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- SECTION 2: TOUTES LES FONCTIONNALITÉS -->
+  <section id="fonctionnalites" class="section">
+    <div class="section-header">
+      <span class="section-eyebrow">Architecture &amp; Capacités</span>
+      <h2 class="section-title">Tout ce qu'il faut dans la barre des menus. Rien de superflu.</h2>
+      <p class="section-desc">
+        Une application macOS native écrite en Swift 6, SwiftUI et AppKit. Pas d'icône dans le Dock,
+        pas d'Electron, pas d'abonnement imposé.
+      </p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon indigo">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 7V4h16v3M9 20h6M12 4v16" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3>Fonctionne dans toutes vos apps</h3>
+        <p>
+          Lit la sélection via l'Accessibilité macOS, avec un fallback automatique par copie transparente pour
+          les navigateurs (Gmail), les apps Electron (Slack, WhatsApp) et les terminaux.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M3.6 9h16.8M3.6 15h16.8M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3>Multi-fournisseurs (BYOK)</h3>
+        <p>
+          Utilisez OpenAI, Anthropic, Google Gemini ou n'importe quel endpoint compatible OpenAI (dont vos modèles
+          locaux via Ollama ou LM Studio sur <code>localhost</code>).
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2" stroke-linecap="round"/>
+            <rect x="7" y="7" width="10" height="10" rx="2"/>
+          </svg>
+        </div>
+        <h3>Read Screen : OCR 100 % local</h3>
+        <p>
+          Un texte non sélectionnable dans une image ou une vidéo ? L'action explicite <em>Read Screen</em> utilise
+          ScreenCaptureKit et Apple Vision en local. Vous relisez et modifiez le texte avant tout envoi cloud.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="16" rx="3"/>
+            <path d="M3 9h18" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3>Panneau flottant façon Spotlight</h3>
+        <p>
+          S'ouvre vide ou pré-rempli en moins de 200 ms, ajuste dynamiquement sa hauteur au contenu avec des barres
+          de défilement fines, et disparaît dès que vous cliquez ailleurs.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="5" y="11" width="14" height="10" rx="2"/>
+            <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3>Privé par conception</h3>
+        <p>
+          Vos clés API sont stockées par fournisseur dans le Trousseau macOS (Keychain), jamais dans
+          <code>UserDefaults</code>. Aucun texte n'est conservé et rien ne quitte votre Mac sans votre action.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon indigo">
+          <img src="./assets/tweaky-symbol-indigo.svg" alt="~" style="width: 20px; height: 20px;" />
+        </div>
+        <h3>Esthétique calme &amp; monochrome</h3>
+        <p>
+          Encre sur surface légèrement translucide, bordures hairline d'un pixel, boutons pilules, police
+          Google Sans intégrée et adaptation automatique au mode clair ou sombre de macOS.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 3: RÉGLAGES NATIFS & CONFIDENTIALITÉ -->
+  <section id="confidentialite" class="section">
+    <div class="settings-showcase">
+      <div class="settings-points">
+        <div>
+          <span class="section-eyebrow">Contrôle total · Zéro intermédiaire</span>
+          <h2 class="section-title" style="text-align: left;">Vos clés, vos modèles, vos raccourcis.</h2>
+          <p class="section-desc" style="text-align: left;">
+            Tweaky parle directement à l'API du fournisseur que vous configurez. Aucune télémétrie,
+            aucun compte utilisateur à créer.
+          </p>
+        </div>
+
+        <div class="settings-point">
+          <h4>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#4F3FE6" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            Trousseau macOS &amp; HTTPS strict
+          </h4>
+          <p>
+            Chaque fournisseur possède son entrée isolée dans le Keychain macOS. Les URL distantes personnalisées
+            exigent HTTPS (HTTP est accepté uniquement pour <code>localhost</code> / <code>127.0.0.1</code>).
+          </p>
+        </div>
+
+        <div class="settings-point">
+          <h4>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#4F3FE6" stroke-width="2">
+              <rect x="2" y="4" width="20" height="16" rx="2"/>
+              <path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 16h8"/>
+            </svg>
+            Double raccourci global configurable
+          </h4>
+          <p>
+            Configurez indépendamment le raccourci d'ouverture du panneau (<code>⌥ Space</code> ou <code>⌘ ⇧ T</code>)
+            et le raccourci de correction instantanée en place (<code>⌥ ⇧ Space</code>).
+          </p>
+        </div>
+
+        <div class="settings-point">
+          <h4>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#4F3FE6" stroke-width="2">
+              <path d="M9 12l2 2 4-4"/>
+              <circle cx="12" cy="12" r="9"/>
+            </svg>
+            Vérifié par CodeQL &amp; Notarisé Apple
+          </h4>
+          <p>
+            Le code Swift 6 est analysé automatiquement par CodeQL et protégé contre les fuites de secrets.
+            Les versions publiées sont signées Developer ID et notarisées par Apple.
+          </p>
+        </div>
+      </div>
+
+      <!-- Interactive Replica of SettingsView.swift -->
+      <div class="settings-window" aria-label="Aperçu de la fenêtre Settings de Tweaky">
+        <div class="sw-header">
+          <img src="./assets/tweaky-app-icon.svg" alt="Tweaky" />
+          <span>Settings</span>
+        </div>
+
+        <div class="sw-group">
+          <span class="sw-group-title">AI provider</span>
+          <div class="sw-card">
+            <div class="sw-row">
+              <span>Provider</span>
+              <select id="sw-provider-select" class="sw-select" aria-label="Choisir un fournisseur IA">
+                <option value="gemini" selected>Google Gemini</option>
+                <option value="openai">OpenAI</option>
+                <option value="anthropic">Anthropic</option>
+                <option value="compatible">OpenAI-compatible</option>
+              </select>
+            </div>
+            <div class="sw-row">
+              <span>Model</span>
+              <span id="sw-model-display" class="sw-mono-val">gemini-3.5-flash</span>
+            </div>
+            <div class="sw-row">
+              <span>API key</span>
+              <span class="sw-mono-val" style="color: var(--green);">● Saved in Keychain</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="sw-group">
+          <span class="sw-group-title">Writing</span>
+          <div class="sw-card">
+            <div class="sw-row">
+              <span>Translate to</span>
+              <span class="sw-mono-val">English / French</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="sw-group">
+          <span class="sw-group-title">Keyboard</span>
+          <div class="sw-card">
+            <div class="sw-row">
+              <span>Open Tweaky</span>
+              <span class="kbd-badge">Option + Space (⌥ Space)</span>
+            </div>
+            <div class="sw-row">
+              <span>Correct in place</span>
+              <div class="sw-toggle">
+                <span class="sw-switch" aria-hidden="true"></span>
+                <span class="kbd-badge">⌥ ⇧ Space</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sw-group">
+          <span class="sw-group-title">Permissions</span>
+          <div class="sw-card">
+            <div class="sw-row">
+              <span>Accessibility</span>
+              <span class="sw-mono-val">✓ Granted</span>
+            </div>
+            <div class="sw-row">
+              <span>Screen Recording (OCR)</span>
+              <span class="sw-mono-val">✓ Granted</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 4: LISTE D'ATTENTE (CONVERSION CARD) -->
+  <section id="waitlist" class="section">
+    <div class="waitlist-section-card">
+      <span class="section-eyebrow">Accès anticipé · macOS 15+</span>
+      <h2 class="section-title">Testez Tweaky en avant-première.</h2>
+      <p class="section-desc">
+        Inscrivez-vous sur la liste d'attente pour recevoir le build macOS signé et notarisé dès l'ouverture
+        des invitations testeurs.
+      </p>
+
+      <form id="bottom-waitlist-form" class="waitlist-form-grid" novalidate>
+        <div>
+          <p style="font-size: 12.5px; color: var(--ink-secondary); margin-bottom: 8px;">
+            Quel fournisseur d'IA utilisez-vous principalement ? (Optionnel)
+          </p>
+          <div class="provider-pills" role="group" aria-label="Fournisseur IA préféré">
+            <button type="button" class="provider-chip selected" data-provider="Google Gemini">Google Gemini</button>
+            <button type="button" class="provider-chip" data-provider="OpenAI">OpenAI</button>
+            <button type="button" class="provider-chip" data-provider="Anthropic Claude">Anthropic Claude</button>
+            <button type="button" class="provider-chip" data-provider="Modèle local (Ollama)">Modèle local (Ollama)</button>
+          </div>
+        </div>
+
+        <div class="waitlist-bar">
+          <input
+            type="email"
+            id="bottom-email"
+            name="email"
+            placeholder="prenom@exemple.fr"
+            required
+            autocomplete="email"
+          />
+          <button type="submit" class="btn-pill btn-pill-dark">
+            Réserver mon accès
+          </button>
+        </div>
+
+        <div id="bottom-waitlist-feedback" class="waitlist-feedback" role="status" aria-live="polite"></div>
+      </form>
+    </div>
+  </section>
+
+  <!-- SECTION 5: FAQ -->
+  <section id="faq" class="section">
+    <div class="section-header">
+      <span class="section-eyebrow">Questions fréquentes</span>
+      <h2 class="section-title">Tout savoir sur Tweaky.</h2>
+    </div>
+
+    <div class="faq-list">
+      <div class="faq-item open">
+        <button type="button" class="faq-question">
+          <span>Quelle est la différence entre ⌥ Space et ⌥ ⇧ Space ?</span>
+          <span class="faq-chevron">▾</span>
+        </button>
+        <div class="faq-answer">
+          <strong>Option-Espace (⌥ Space)</strong> ouvre le panneau flottant Tweaky avec votre texte déjà pré-rempli :
+          vous pouvez choisir de le corriger (<code>⌘↩</code>) ou de le traduire (<code>⌘T</code>), relire le résultat,
+          puis le copier ou remplacer la sélection. <strong>Option-Maj-Espace (⌥ ⇧ Space)</strong> corrige directement
+          votre sélection en arrière-plan et la remplace sur place sans ouvrir de fenêtre, pendant que l'icône de la barre
+          des menus pulse.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button type="button" class="faq-question">
+          <span>Dans quelles applications Tweaky fonctionne-t-il ?</span>
+          <span class="faq-chevron">▾</span>
+        </button>
+        <div class="faq-answer">
+          Partout sur macOS : Apple Mail, Notes, Safari, Slack, WhatsApp, Gmail, Notion, Linear, Xcode, VS Code ou
+          votre terminal. Tweaky lit et remplace la sélection via l'API d'Accessibilité macOS, et bascule automatiquement
+          sur un mécanisme de copie/collage avec restauration intégrale du presse-papiers pour les applications qui
+          n'exposent pas leur sélection.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button type="button" class="faq-question">
+          <span>Mes textes et ma clé API sont-ils privés ?</span>
+          <span class="faq-chevron">▾</span>
+        </button>
+        <div class="faq-answer">
+          Oui. Votre clé API est enregistrée uniquement dans le Trousseau macOS (Keychain). Tweaky ne possède aucun
+          serveur intermédiaire : votre texte n'est jamais stocké et n'est envoyé directement au fournisseur que vous
+          avez choisi qu'au moment où vous déclenchez une action. Même la lecture d'écran OCR s'exécute 100 % localement
+          sur votre Mac via Apple Vision avant toute validation.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button type="button" class="faq-question">
+          <span>Quelle version de macOS est requise ?</span>
+          <span class="faq-chevron">▾</span>
+        </button>
+        <div class="faq-answer">
+          Tweaky nécessite <strong>macOS 15 (Sequoia) ou version ultérieure</strong> et une clé API d'OpenAI, Anthropic,
+          Google AI Studio (Gemini dispose d'un niveau gratuit généreux) ou un serveur local compatible OpenAI comme Ollama.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-brand">
+      <img src="./assets/tweaky-symbol-indigo.svg" alt="Tweaky symbol" />
+      <span>Tweaky — Assistant d'écriture natif pour macOS</span>
+    </div>
+
+    <div class="footer-links">
+      <a href="#demo">Démo</a>
+      <a href="#nouveautes">Nouveautés</a>
+      <a href="#fonctionnalites">Fonctionnalités</a>
+      <a href="https://github.com/AristideWafo/tweaky" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </div>
+  </footer>
+
+  <script src="./app.js"></script>
+</body>
+</html>
